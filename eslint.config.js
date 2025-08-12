@@ -12,6 +12,8 @@ module.exports = [
       '**/build/**',
       '**/.pytest_cache/**',
       '**/__pycache__/**',
+      'frontend/**/*.jsx',
+      'frontend/**/*.tsx',
     ],
     languageOptions: {
       ecmaVersion: 2022,

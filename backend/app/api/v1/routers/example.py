@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException
+"""Example router module."""
+
 from typing import List, Dict, Any
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
@@ -28,7 +30,7 @@ async def get_item(item_id: int):
 @router.post("/items", response_model=Dict[str, Any])
 async def create_item(name: str, description: str = ""):
     """Create a new item"""
-    new_id = max([item["id"] for item in example_data], default=0) + 1
+    new_id = max((item["id"] for item in example_data), default=0) + 1
     new_item = {"id": new_id, "name": name, "description": description}
     example_data.append(new_item)
     return new_item

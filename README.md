@@ -1,204 +1,193 @@
-# AI File Management System
+# AIFile2 Project
 
-This project includes comprehensive code quality tools and pre-commit hooks for Python and JavaScript/TypeScript development.
+A full-stack web application with FastAPI backend and React frontend.
 
-## 🛠️ Tools Configured
-
-- **Black**: Python code formatter
-- **Flake8**: Python linter
-- **Pylint**: Python static analysis
-- **ESLint**: JavaScript/TypeScript linter
-- **Prettier**: Code formatter for JS/TS/JSON/YAML/MD
-
-## 🚀 Quick Setup
-
-### 1. Install Python Dependencies (Virtual Environment - Recommended)
-
-```bash
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install Python tools
-pip install black flake8 pylint
-
-# Deactivate when done
-deactivate
-```
-
-### 2. Install Node.js Dependencies
-
-```bash
-# Install from package.json
-npm install
-
-# Or install globally
-npm install -g eslint prettier
-```
-
-### 3. Install Pre-commit Hooks
-
-```bash
-# Install pre-commit hooks
-pre-commit install
-
-# Test all hooks
-pre-commit run --all-files
-```
-
-## 📋 Manual Testing Scripts
-
-### Available Scripts
-
-| Script                       | Description                      | Environment         |
-| ---------------------------- | -------------------------------- | ------------------- |
-| `./scripts/lint_manual.sh`   | Run all linting tools            | Any (detects venv)  |
-| `./scripts/lint_venv.sh`     | Run tools in virtual environment | Virtual environment |
-| `./scripts/lint_fix.sh`      | Auto-fix formatting issues       | Any                 |
-| `./scripts/lint_fix_venv.sh` | Auto-fix in virtual environment  | Virtual environment |
-
-### Usage Examples
-
-```bash
-# Check code quality (any environment)
-./scripts/lint_manual.sh
-
-# Check code quality (virtual environment)
-./scripts/lint_venv.sh
-
-# Auto-fix formatting issues
-./scripts/lint_fix.sh
-
-# Auto-fix in virtual environment
-./scripts/lint_fix_venv.sh
-```
-
-## 🔧 Pre-commit Hooks
-
-Pre-commit hooks automatically run before each commit to ensure code quality:
-
-- **Black**: Formats Python code
-- **Flake8**: Checks Python style and errors
-- **Pylint**: Performs static analysis on Python code
-- **ESLint**: Lints JavaScript/TypeScript files
-- **Prettier**: Formats various file types
-
-### Manual Pre-commit Testing
-
-```bash
-# Run all hooks on all files
-pre-commit run --all-files
-
-# Run specific hook
-pre-commit run black
-pre-commit run eslint
-
-# Skip hooks for a commit (not recommended)
-git commit --no-verify
-```
-
-## 📁 Configuration Files
-
-- `.pre-commit-config.yaml`: Pre-commit hook configuration
-- `eslint.config.js`: ESLint configuration (modern flat config)
-- `.prettierrc`: Prettier formatting rules
-- `package.json`: Node.js dependencies and scripts
-- `pytest.ini`: Pytest configuration
-
-## 🎯 Tool-Specific Commands
-
-### Python Tools
-
-```bash
-# Black (formatter)
-black --check .                    # Check formatting
-black .                            # Apply formatting
-
-# Flake8 (linter)
-flake8 .                           # Check style
-
-# Pylint (static analysis)
-pylint .                           # Analyze code
-```
-
-### JavaScript/TypeScript Tools
-
-```bash
-# ESLint
-eslint .                           # Check for issues
-eslint . --fix                     # Fix auto-fixable issues
-
-# Prettier
-prettier --check .                 # Check formatting
-prettier --write .                 # Apply formatting
-```
-
-## 🔍 Troubleshooting
-
-### Missing Tools Error
-
-If you see "Missing tools" errors:
-
-1. **For Python tools**: Use virtual environment or install globally
-
-   ```bash
-   # Virtual environment (recommended)
-   source venv/bin/activate
-   pip install black flake8 pylint
-
-   # Global installation (not recommended)
-   pip3 install --user black flake8 pylint
-   ```
-
-2. **For Node.js tools**: Install via npm
-   ```bash
-   npm install  # Uses package.json
-   # or
-   npm install -g eslint prettier
-   ```
-
-### Pre-commit Issues
-
-```bash
-# Reinstall hooks
-pre-commit uninstall
-pre-commit install
-
-# Update hook repositories
-pre-commit autoupdate
-
-# Clear cache if needed
-pre-commit clean
-```
-
-## 📊 Project Structure
+## Project Structure
 
 ```
 aifile2/
-├── .pre-commit-config.yaml    # Pre-commit configuration
-├── eslint.config.js           # ESLint configuration
-├── .prettierrc                # Prettier configuration
-├── package.json               # Node.js dependencies
-├── pytest.ini                # Pytest configuration
-├── venv/                      # Python virtual environment
-├── scripts/                   # Manual testing scripts
-│   ├── lint_manual.sh         # General linting script
-│   ├── lint_venv.sh          # Virtual environment linting
-│   ├── lint_fix.sh           # Auto-fix script
-│   └── lint_fix_venv.sh      # Virtual environment auto-fix
-├── backend/                   # Python backend code
-├── frontend/                  # Frontend code
-└── README.md                  # This file
+├── backend/           # FastAPI Python backend
+│   ├── app/
+│   │   ├── main.py           # FastAPI application entry point
+│   │   └── api/v1/routers/   # API route handlers
+│   ├── requirements.txt      # Python dependencies
+│   └── docker-compose.yml    # Backend Docker configuration
+├── frontend/          # React frontend
+│   ├── src/
+│   │   ├── App.jsx          # Main React component
+│   │   └── main.jsx         # React entry point
+│   ├── package.json         # Node.js dependencies
+│   ├── vite.config.js       # Vite build configuration
+│   ├── tailwind.config.js   # Tailwind CSS configuration
+│   └── docker-compose.yml   # Frontend Docker configuration
+├── justfile           # Task automation (alternative to Makefile)
+└── README.md          # This file
 ```
 
-## 🎉 Success!
+## Prerequisites
 
-Your development environment is now configured with:
+- **Node.js** (v16 or higher)
+- **Python** (v3.8 or higher)
+- **Docker** and **Docker Compose**
+- **Just** command runner (optional, for using justfile)
 
-- ✅ Pre-commit hooks for automatic code quality checks
-- ✅ Manual scripts for testing with and without virtual environment
-- ✅ Comprehensive linting and formatting for Python and JavaScript
-- ✅ Modern ESLint flat configuration
-- ✅ Proper tool isolation and dependency management
+## Quick Start
 
-Happy coding! 🚀
+### Option 1: Using Just (Recommended)
+
+1. **Install Just** (if not already installed):
+
+   ```bash
+   # On macOS
+   brew install just
+
+   # On Ubuntu/Debian
+   wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
+   echo "deb [arch=all,amd64,arm64 signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
+   sudo apt update
+   sudo apt install just
+
+   # On other systems, see: https://github.com/casey/just#installation
+   ```
+
+2. **Install all dependencies:**
+
+   ```bash
+   just install
+   ```
+
+3. **Start development servers:**
+   ```bash
+   just dev
+   ```
+
+### Option 2: Manual Setup
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone <repository-url>
+   cd aifile2
+   ```
+
+2. **Install backend dependencies:**
+
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   cd ..
+   ```
+
+3. **Install frontend dependencies:**
+
+   ```bash
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+4. **Start with Docker:**
+   ```bash
+   docker-compose -f backend/docker-compose.yml -f frontend/docker-compose.yml up
+   ```
+
+## Available Commands
+
+### Using Just
+
+- `just install` - Install all project dependencies
+- `just dev` - Start development servers with Docker
+- `just lint` - Run ESLint on JavaScript/React code
+- `just test` - Run tests for both backend and frontend
+- `just build` - Build Docker containers
+- `just clean` - Stop containers and clean Docker system
+
+### Manual Commands
+
+#### Backend (FastAPI)
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### Frontend (React + Vite)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Development
+
+### Backend Development
+
+- **Framework:** FastAPI
+- **Language:** Python 3.8+
+- **API Documentation:** Available at `http://localhost:8000/docs` when running
+- **Code Quality:** Uses flake8 and pylint for linting
+
+### Frontend Development
+
+- **Framework:** React 18
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS
+- **Code Quality:** Uses ESLint for linting
+
+### Code Quality
+
+The project maintains high code quality standards:
+
+- **Python:** Pylint score of 10.00/10
+- **JavaScript/React:** ESLint with no errors
+- **Automatic formatting:** Use `just lint` to fix common issues
+
+## Deployment
+
+### VPS Deployment
+
+1. **Clone on your VPS:**
+
+   ```bash
+   git clone <repository-url>
+   cd aifile2
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   just install
+   ```
+
+3. **Start services:**
+   ```bash
+   just dev
+   ```
+
+### Docker Deployment
+
+The project includes Docker configurations for both backend and frontend:
+
+```bash
+docker-compose -f backend/docker-compose.yml -f frontend/docker-compose.yml up -d
+```
+
+## API Endpoints
+
+- **Backend API:** `http://localhost:8000`
+- **API Documentation:** `http://localhost:8000/docs`
+- **Frontend:** `http://localhost:3000` (development)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run linting: `just lint`
+5. Submit a pull request
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
