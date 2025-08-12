@@ -1,13 +1,40 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 24.8.0
     hooks:
       - id: black
+        exclude: ^(venv/|\.venv/|node_modules/)
+        args: [--line-length=88]
+
   - repo: https://github.com/pycqa/flake8
-    rev: 4.0.1
+    rev: 7.1.1
     hooks:
       - id: flake8
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.15.0
+        exclude: ^(venv/|\.venv/|node_modules/)
+        args: [--max-line-length=88, --extend-ignore=E203, W503]
+
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.3.1
+    hooks:
+      - id: pylint
+        exclude: ^(venv/|\.venv/|node_modules/)
+        args: [--max-line-length=88]
+
+  - repo: local
     hooks:
       - id: eslint
+        name: eslint
+        entry: eslint
+        language: node
+        files: \.(js|jsx|ts|tsx)$
+        exclude: ^(venv/|\.venv/|node_modules/)
+        additional_dependencies: [eslint@^8.57.0]
+
+      - id: prettier
+        name: prettier
+        entry: prettier
+        language: node
+        files: \.(js|jsx|ts|tsx|json|md|yaml|yml|css|scss|html)$
+        exclude: ^(venv/|\.venv/|node_modules/)
+        args: [--write]
+        additional_dependencies: [prettier@^3.3.0]

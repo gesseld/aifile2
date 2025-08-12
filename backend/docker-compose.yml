@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./app:/app
+      - ./requirements.txt:/app/requirements.txt
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - aifile_network
+
+networks:
+  aifile_network:
+    external: true
