@@ -1,40 +1,82 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-byte-order-marker
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 25.1.0
     hooks:
       - id: black
-        exclude: ^(venv/|\.venv/|node_modules/)
         args: [--line-length=88]
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        name: isort (python)
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
     hooks:
       - id: flake8
-        exclude: ^(venv/|\.venv/|node_modules/)
-        args: [--max-line-length=88, --extend-ignore=E203, W503]
+        additional_dependencies: [flake8-bugbear]
 
-  - repo: https://github.com/pycqa/pylint
-    rev: v3.3.1
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.17.1
     hooks:
-      - id: pylint
-        exclude: ^(venv/|\.venv/|node_modules/)
-        args: [--max-line-length=88]
+      - id: mypy
+        additional_dependencies: [types-requests]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        additional_dependencies: [prettier@^3.1.0]
+        types: [file]
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.33.0
+    hooks:
+      - id: eslint
+        additional_dependencies:
+          - eslint@^8.57.0
+          - eslint-config-prettier@^9.1.0
+          - eslint-plugin-prettier@^5.1.3
+          - @typescript-eslint/parser@^6.7.0
+          - @typescript-eslint/eslint-plugin@^6.7.0
+        types: [file]
+        files: \.(js|jsx|ts|tsx)$
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        additional_dependencies:
+          - prettier@^3.1.0
+          - prettier-plugin-organize-imports@^3.2.3
+        types: [file]
+        files: \.(js|jsx|ts|tsx|json|md|yaml|yml)$
 
   - repo: local
     hooks:
-      - id: eslint
-        name: eslint
-        entry: eslint
-        language: node
-        files: \.(js|jsx|ts|tsx)$
-        exclude: ^(venv/|\.venv/|node_modules/)
-        additional_dependencies: [eslint@^8.57.0]
-
-      - id: prettier
-        name: prettier
-        entry: prettier
-        language: node
-        files: \.(js|jsx|ts|tsx|json|md|yaml|yml|css|scss|html)$
-        exclude: ^(venv/|\.venv/|node_modules/)
-        args: [--write]
-        additional_dependencies: [prettier@^3.3.0]
+      - id: forbid-crlf
+        name: forbid CRLF line endings
+        entry: bash -c '! grep -IUlr $'\''\r'\'' .'
+        language: system
+        types: [text]
