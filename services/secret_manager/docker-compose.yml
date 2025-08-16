@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  secret-manager:
+    build: .
+    container_name: secret-manager
+    ports:
+      - '8000:8000'
+    environment:
+      - DB_HOST=secret-postgres
+      - DB_PORT=5432
+      - DB_USER=secret_user
+      - DB_PASSWORD=secret_password
+      - DB_NAME=secret_db
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-aifile123}
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      secret-postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    networks:
+      - secret-network
+
+  secret-postgres:
+    image: postgres:15
+    container_name: secret-postgres
+    environment:
+      - POSTGRES_DB=secret_db
+      - POSTGRES_USER=secret_user
+      - POSTGRES_PASSWORD=secret_password
+    volumes:
+      - secret_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U secret_user -d secret_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - secret-network
+
+  nats:
+    image: nats:latest
+    container_name: nats
+    ports:
+      - '4222:4222'
+    networks:
+      - secret-network
+
+volumes:
+  secret_postgres_data:
+
+networks:
+  secret-network:
+    driver: bridge

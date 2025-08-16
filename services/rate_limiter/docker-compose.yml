@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  rate-limiter:
+    build: .
+    container_name: rate-limiter
+    ports:
+      - '8003:8000'
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DEFAULT_RATE_LIMIT=60
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - aifile_network
+    restart: unless-stopped
+
+networks:
+  aifile_network:
+    external: true

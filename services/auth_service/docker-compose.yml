@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: .
+    ports:
+      - '8000:8000'
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth
+      - JWT_SECRET=${JWT_SECRET:-secret-key-change-in-production}
+      - REFRESH_SECRET_KEY=${REFRESH_SECRET_KEY:-refresh-secret-key-change-in-production}
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - auth-network
+    volumes:
+      - ./tests:/app/tests
+      - ./app:/app/app
+    working_dir: /app
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auth-network
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redispass}
+    volumes:
+      - redis_data:/data
+    networks:
+      - auth-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  auth-network:
+    driver: bridge

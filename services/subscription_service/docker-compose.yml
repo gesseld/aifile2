@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  subscription-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8003:8000'
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://user:password@postgres:5432/subscriptions
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - aifile_network
+
+networks:
+  aifile_network:
+    external: true

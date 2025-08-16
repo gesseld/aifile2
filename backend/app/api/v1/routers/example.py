@@ -1,6 +1,7 @@
 """Example router module."""
 
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter()

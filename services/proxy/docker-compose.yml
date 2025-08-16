@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  mistral-proxy:
+    build: .
+    container_name: mistral-proxy
+    restart: unless-stopped
+    networks:
+      - aifile_network
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=aifile
+      - DB_PASSWORD=aifile123
+      - DB_NAME=aifile
+      - TARGET_URL=https://api.mistral.ai/v1
+    ports:
+      - '8100:8000'
+
+networks:
+  aifile_network:
+    external: true

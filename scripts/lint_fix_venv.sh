@@ -74,9 +74,9 @@ echo ""
 run_fixer() {
     local tool_name="$1"
     local command="$2"
-    
+
     print_status "Running $tool_name..."
-    
+
     if eval "$command"; then
         print_success "$tool_name completed"
         return 0

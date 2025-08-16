@@ -101,9 +101,9 @@ echo ""
 run_linter() {
     local tool_name="$1"
     local command="$2"
-    
+
     print_status "Running $tool_name..."
-    
+
     if eval "$command"; then
         print_success "$tool_name passed"
         return 0

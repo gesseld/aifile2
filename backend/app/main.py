@@ -1,8 +1,8 @@
 """Backend API main module."""
 
+from api.v1.routers import example
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.v1.routers import example
 
 # Create FastAPI instance
 app = FastAPI(
