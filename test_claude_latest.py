@@ -1,1 +1,1 @@
-print('Testing Claude 4 Sonnet availability')
+print('Testing Claude 4 Opus availability')
