@@ -1,1 +1,1 @@
-print('Testing Qwen 2.5 Coder Instruct model')
+print('Testing Qwen3 Coder Instruct model')
