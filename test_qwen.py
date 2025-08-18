@@ -1,1 +1,1 @@
-print('Testing Qwen API with DashScope')
+print('Testing Qwen Plus model through DashScope API')
