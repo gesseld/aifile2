@@ -2364,6 +2364,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                       </span>
                       <button
                         className="text-white hover:underline bg-transparent border-none p-0 text-sm cursor-pointer"
+                        data-testid={`breadcrumb-seg-${seg}`}
                         onClick={() => {
                           navByUserRef.current = true
                           setPrefix(p)
@@ -2917,6 +2918,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                       <React.Fragment key="root">
                         <button
                           className="text-blue-600 hover:text-blue-800 bg-transparent border-none p-0 text-sm cursor-pointer transition-colors duration-200"
+                          data-testid="breadcrumb-root"
                           onClick={() => {
                             navByUserRef.current = true
                             setPrefix(rootPrefix)
@@ -2936,6 +2938,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                           <span className="text-gray-400 mx-1">/</span>
                           <button
                             className="text-blue-600 hover:text-blue-800 bg-transparent border-none p-0 text-sm cursor-pointer transition-colors duration-200"
+                            data-testid={`breadcrumb-seg-${seg}`}
                             onClick={() => {
                               navByUserRef.current = true
                               setPrefix(p)
@@ -3439,6 +3442,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
               <div style={{ display: 'flex', gap: 6 }}>
                 <button
                   className="navlink"
+                  data-testid="tab-preview"
                   onClick={() => setRightTab('preview')}
                   aria-pressed={rightTab === 'preview'}
                   disabled={selected.size !== 1}
@@ -3452,6 +3456,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                 </button>
                 <button
                   className="navlink"
+                  data-testid="tab-details"
                   onClick={() => setRightTab('details')}
                   aria-pressed={rightTab === 'details'}
                 >
@@ -3459,6 +3464,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                 </button>
                 <button
                   className="navlink"
+                  data-testid="tab-uploads"
                   onClick={() => setRightTab('uploads')}
                   aria-pressed={rightTab === 'uploads'}
                 >
