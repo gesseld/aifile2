@@ -124,7 +124,7 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
   }, [selected, files, loading])
 
   // Build ActionRegistry-based actions with a proper ctx
-  const regActions = useMemo(() => {
+  const regActions = useMemo<ActionDescriptor[]>(() => {
     const role: UserRole = getUserRole()
     const permissions = getUserPermissions()
     // Provide all required operation stubs so build()/enabled() never crash
@@ -144,7 +144,7 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
         download: (_f: FileMeta) => {},           // Download button wired via context menu/file rows
       },
     }
-    return getActionsForContext(ctx as any)
+    return getActionsForContext(ctx as any) as ActionDescriptor[]
   }, [selected, files, onRenameSelected, onShareSelected, onDeleteSelected, onCopySelected, onMoveSelected])
 
   // Utility helpers
@@ -210,7 +210,7 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
     .map((id) => actionById.get(id))
     .filter(Boolean) as ActionDescriptor[]
 
-  const secondaryActions = regActions.filter((a) => !primaryIds.includes(a.id))
+  const secondaryActions = regActions.filter((a: ActionDescriptor) => !primaryIds.includes(a.id))
 
   return (
     <div className="unified-action-bar" role="toolbar" aria-label="File actions">
@@ -313,6 +313,20 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
           >
             <span className="btn-icon" aria-hidden="true">🕓</span>
             <span className="sr-only">Timeline view</span>
+          </button>
+          <button
+            className="view-btn"
+            title="AI Relevance"
+            aria-pressed={false}
+            data-testid="toolbar-ai"
+            onClick={() => {
+              try {
+                window.dispatchEvent(new CustomEvent('afm:action', { detail: { action: 'toggleAI' } }))
+              } catch {}
+            }}
+          >
+            <span className="btn-icon" aria-hidden="true">✨</span>
+            <span className="sr-only">AI Relevance</span>
           </button>
         </div>
       </div>
