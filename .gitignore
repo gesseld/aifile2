@@ -21,3 +21,29 @@ venv/
 # Build
 dist/
 build/
+.aider*
+
+# Playwright test reports
+playwright-report/
+*.playwright-report/
+
+# Test coverage
+coverage/
+
+# UI refresh ignore hardening
+.venv/
+.venv_verify/
+.coverage
+coverage/
+services/file_service/coverage/
+.next/
+node_modules/
+dist/
+build/
+logs/
+test-results/
+preview.pid
+*.pid
+*.tsbuildinfo
+.DS_Store
+.vscode/
