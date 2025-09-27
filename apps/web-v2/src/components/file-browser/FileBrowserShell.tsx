@@ -613,74 +613,74 @@ export function FileBrowserShell(props: FileBrowserShellProps) {
   // Items computed later once dependencies are declared to avoid TDZ issues
   const [blankMenuItems, setBlankMenuItems] = useState<any[]>([])
 
-// One-step-ahead page prefetch cache (bucket:prefix:cursor -> page)
-// Declarations placed here so all downstream effects/handlers can reference them.
-type CachedListPage = {
-  folders: { key: string; name: string }[]
-  objects: { key: string; name: string; size: number; lastModified: string }[]
-  nextContinuationToken?: string
-  total?: number
-}
-const pageCacheRef = React.useRef<Map<string, CachedListPage>>(new Map())
-
-// Performance & caching budgets/metrics
-const PAGE_CACHE_LIMIT_DEFAULT = 80
-const pageCacheLimitRef = React.useRef<number>(PAGE_CACHE_LIMIT_DEFAULT)
-const perfMetricsRef = React.useRef({
-  cacheHits: 0,
-  cacheMisses: 0,
-  prefetches: 0,
-  aborts: 0,
-  retries: 0,
-})
-function emitPerfMetrics() {
-  const snapshot = {
-    ...perfMetricsRef.current,
-    pageCacheSize: pageCacheRef.current.size,
-    pageCacheLimit: pageCacheLimitRef.current,
+  // One-step-ahead page prefetch cache (bucket:prefix:cursor -> page)
+  // Declarations placed here so all downstream effects/handlers can reference them.
+  type CachedListPage = {
+    folders: { key: string; name: string }[]
+    objects: { key: string; name: string; size: number; lastModified: string }[]
+    nextContinuationToken?: string
+    total?: number
   }
-  try {
-    window.dispatchEvent(
-      new CustomEvent('afm:perf', {
-        detail: snapshot,
-      })
-    )
-  } catch {}
-  // Consent-gated analytics (no-op when consent not granted)
-  try {
-    track('perf.metrics', snapshot as any)
-  } catch {}
-}
+  const pageCacheRef = React.useRef<Map<string, CachedListPage>>(new Map())
 
-const cacheKey = (
-  bucket?: string,
-  basePrefix?: string,
-  cursor?: string | null | undefined
-) => {
-  const b = bucket || ''
-  const p = (basePrefix || '').replace(/^\/+|\/+$/g, '')
-  const c = cursor || ''
-  return `${b}::${p}::${c}`
-}
-
-// Enforce a simple FIFO budget for the page cache to avoid unbounded growth
-function ensureCacheBudget(limit = pageCacheLimitRef.current) {
-  try {
-    const m = pageCacheRef.current
-    while (m.size > limit) {
-      const first = m.keys().next()
-      if (!first.done) m.delete(first.value)
-      else break
+  // Performance & caching budgets/metrics
+  const PAGE_CACHE_LIMIT_DEFAULT = 80
+  const pageCacheLimitRef = React.useRef<number>(PAGE_CACHE_LIMIT_DEFAULT)
+  const perfMetricsRef = React.useRef({
+    cacheHits: 0,
+    cacheMisses: 0,
+    prefetches: 0,
+    aborts: 0,
+    retries: 0,
+  })
+  function emitPerfMetrics() {
+    const snapshot = {
+      ...perfMetricsRef.current,
+      pageCacheSize: pageCacheRef.current.size,
+      pageCacheLimit: pageCacheLimitRef.current,
     }
-    emitPerfMetrics()
-  } catch {}
-}
+    try {
+      window.dispatchEvent(
+        new CustomEvent('afm:perf', {
+          detail: snapshot,
+        })
+      )
+    } catch {}
+    // Consent-gated analytics (no-op when consent not granted)
+    try {
+      track('perf.metrics', snapshot as any)
+    } catch {}
+  }
+
+  const cacheKey = (
+    bucket?: string,
+    basePrefix?: string,
+    cursor?: string | null | undefined
+  ) => {
+    const b = bucket || ''
+    const p = (basePrefix || '').replace(/^\/+|\/+$/g, '')
+    const c = cursor || ''
+    return `${b}::${p}::${c}`
+  }
+
+  // Enforce a simple FIFO budget for the page cache to avoid unbounded growth
+  function ensureCacheBudget(limit = pageCacheLimitRef.current) {
+    try {
+      const m = pageCacheRef.current
+      while (m.size > limit) {
+        const first = m.keys().next()
+        if (!first.done) m.delete(first.value)
+        else break
+      }
+      emitPerfMetrics()
+    } catch {}
+  }
   // One-step-ahead page prefetch cache (bucket:prefix:cursor -> page)
   // (deduped) declarations moved above
 
   // Abort controller for in-flight listing requests to avoid work on rapid scroll/jumps
   const listAbortRef = useRef<AbortController | null>(null)
-  
+
   // Initialize cache budget from localStorage (browser-only)
   useEffect(() => {
     try {
@@ -709,13 +709,16 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
           ensureCacheBudget()
           emitPerfMetrics()
           try {
-            track('perf.pageCacheLimit.changed', { limit: pageCacheLimitRef.current })
+            track('perf.pageCacheLimit.changed', {
+              limit: pageCacheLimitRef.current,
+            })
           } catch {}
         }
       } catch {}
     }
     window.addEventListener('afm:pageCacheLimit', onLimit as any)
-    return () => window.removeEventListener('afm:pageCacheLimit', onLimit as any)
+    return () =>
+      window.removeEventListener('afm:pageCacheLimit', onLimit as any)
   }, [])
 
   // Exponential backoff for transient listing failures
@@ -726,9 +729,22 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
     try {
       const msg = String(e?.message || e || '').toLowerCase()
       // Treat network/offline/timeouts and 5xx-ish hints as transient
-      if (typeof navigator !== 'undefined' && navigator.onLine === false) return true
-      if (msg.includes('network') || msg.includes('timeout') || msg.includes('timed out')) return true
-      if (msg.includes('503') || msg.includes('502') || msg.includes('500') || msg.includes('bad gateway') || msg.includes('service unavailable')) return true
+      if (typeof navigator !== 'undefined' && navigator.onLine === false)
+        return true
+      if (
+        msg.includes('network') ||
+        msg.includes('timeout') ||
+        msg.includes('timed out')
+      )
+        return true
+      if (
+        msg.includes('503') ||
+        msg.includes('502') ||
+        msg.includes('500') ||
+        msg.includes('bad gateway') ||
+        msg.includes('service unavailable')
+      )
+        return true
     } catch {}
     return false
   }
@@ -742,7 +758,9 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
       const attempt = backoffAttemptRef.current
       if (attempt >= 4) return // cap retries
       const delay = Math.min(15000, 1000 * Math.pow(2, attempt)) // 1s,2s,4s,8s,15s
-      setBulkStatus(`Recovering from error${reason ? `: ${reason}` : ''}. Retrying in ${Math.round(delay / 1000)}s…`)
+      setBulkStatus(
+        `Recovering from error${reason ? `: ${reason}` : ''}. Retrying in ${Math.round(delay / 1000)}s…`
+      )
       backoffTimerRef.current = window.setTimeout(() => {
         backoffTimerRef.current = null
         backoffAttemptRef.current = attempt + 1
@@ -839,7 +857,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
       }
       setLoading(true)
       setError(undefined)
-  
+
       // Abort any in-flight list and start a fresh controller
       try {
         if (listAbortRef.current) {
@@ -1654,7 +1672,10 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
       // Build engine operations to enable undo/redo and offline queue
       const ids = Array.from(selected as Set<string>) as string[]
       const pickedFiles = files.filter((f) => ids.includes(f.id))
-      const ops = buildOperationsFromSelection({ type: 'delete' } as const, pickedFiles)
+      const ops = buildOperationsFromSelection(
+        { type: 'delete' } as const,
+        pickedFiles
+      )
 
       const exec = await runBatchOperations(ops, {
         conflictPolicy: 'fail',
@@ -1663,18 +1684,30 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
         chunkSize: 200,
       })
 
-      const queued = exec.results.filter((r) => r.error === 'queued_offline').length
+      const queued = exec.results.filter(
+        (r) => r.error === 'queued_offline'
+      ).length
       const failed = exec.failures.length - queued
       const ok = exec.successes.length
 
       if (queued > 0 && ok === 0 && failed === 0) {
-        setBulkStatus(`Delete queued offline (${queued} ops). Will retry when online.`)
+        setBulkStatus(
+          `Delete queued offline (${queued} ops). Will retry when online.`
+        )
       } else if (failed > 0) {
-        const sample = exec.failures.slice(0, 5).map((r) => r.error).filter(Boolean).join('; ')
-        setBulkStatus(`Delete completed with errors (${ok} ok, ${failed} failed${queued ? `, ${queued} queued` : ''})`)
+        const sample = exec.failures
+          .slice(0, 5)
+          .map((r) => r.error)
+          .filter(Boolean)
+          .join('; ')
+        setBulkStatus(
+          `Delete completed with errors (${ok} ok, ${failed} failed${queued ? `, ${queued} queued` : ''})`
+        )
         alert(`Some deletions failed: ${sample}`)
       } else {
-        setBulkStatus(`Deleted ${ok} item(s)${queued ? `, ${queued} queued offline` : ''}`)
+        setBulkStatus(
+          `Deleted ${ok} item(s)${queued ? `, ${queued} queued offline` : ''}`
+        )
       }
 
       setSelected(new Set())
@@ -1685,7 +1718,9 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
     } catch (e: any) {
       setBulkStatus(`Delete failed: ${e?.message || 'Unknown error'}`)
       alert(e?.message || 'Delete failed')
-      try { track('files.delete', { count: (selected?.size ?? 0), ok: 0, failed: 1 }) } catch {}
+      try {
+        track('files.delete', { count: selected?.size ?? 0, ok: 0, failed: 1 })
+      } catch {}
     } finally {
       setTimeout(() => setBulkStatus(undefined), 2500)
     }
@@ -2043,12 +2078,16 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
         setBulkStatus('Rename queued offline; will apply when online.')
         setTimeout(() => setBulkStatus(undefined), 2500)
       }
-      try { track('files.rename', { ok: true }) } catch {}
+      try {
+        track('files.rename', { ok: true })
+      } catch {}
       void loadFiles(true)
     } catch (e: any) {
       setEditSaving(false)
       setEditError(e?.message || 'Rename failed')
-      try { track('files.rename', { ok: false }) } catch {}
+      try {
+        track('files.rename', { ok: false })
+      } catch {}
     }
   }, [editId, editValue, files, loadFiles])
 
@@ -2167,7 +2206,12 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
           )
           if (destMode === 'move') setSelected(new Set())
         }
-        try { track(destMode === 'copy' ? 'files.copy' as any : 'files.move' as any, { count: results.length, ok: okCount, failed: finalFailed.length }) } catch {}
+        try {
+          track(
+            destMode === 'copy' ? ('files.copy' as any) : ('files.move' as any),
+            { count: results.length, ok: okCount, failed: finalFailed.length }
+          )
+        } catch {}
 
         // Push undo entry using reverseOps from first execution (covers successful moves/renames)
         if (exec1.reverseOps && exec1.reverseOps.length) {
@@ -2265,7 +2309,9 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
     }
     function handleOffline() {
       try {
-        setBulkStatus('You are offline. Actions will queue and refresh on reconnect.')
+        setBulkStatus(
+          'You are offline. Actions will queue and refresh on reconnect.'
+        )
       } catch {}
     }
     window.addEventListener('online', handleOnline)
@@ -2550,7 +2596,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
 
       {!props.hideHeader && (
         <div
-          className="sticky top-16 z-20 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm"
+          className="sticky top-16 z-20 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)] text-[var(--foreground)] shadow-soft"
           role="toolbar"
           aria-label="File actions and filters"
         >
@@ -2623,7 +2669,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
 
       {/* Live Search + Filter Ribbon toggle */}
       <div
-        className="px-4 py-2 bg-gray-50 border-b border-gray-200"
+        className="px-4 py-2 bg-[var(--surface-2)] border-b border-[var(--border)]"
         role="region"
         aria-label="Filters"
       >
@@ -2658,7 +2704,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
               createdBefore: liveFilters?.createdBefore,
               metadata: liveFilters?.metadata,
             }}
-            onChange={(f) => {
+            onChange={(f: SearchFilters) => {
               setLiveFilters(f)
               // Keep lightweight local text filtering in sync with free-text query
               const q = (f.query || '').trim()
@@ -2679,7 +2725,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                 metadata: f.metadata || undefined,
               })
             }}
-            onSubmit={(f) => {
+            onSubmit={(f: SearchFilters) => {
               // Normalize and navigate to /search with query params for the dedicated Search page
               const qs = new URLSearchParams()
               if (f.query) qs.set('query', f.query)
@@ -2718,8 +2764,8 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
         <aside
           id="left-panel"
           suppressHydrationWarning
-          className={`flex flex-col transition-all duration-200 ease-in-out border-r border-gray-200 bg-white ${leftCollapsed ? 'w-0 min-w-0 overflow-hidden pointer-events-none' : ''}`}
-          style={{ width: leftCollapsed ? 0 : (mounted ? leftWidth : 240) }}
+          className={`flex flex-col transition-all duration-200 ease-in-out border-r border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] ${leftCollapsed ? 'w-0 min-w-0 overflow-hidden pointer-events-none' : ''}`}
+          style={{ width: leftCollapsed ? 0 : mounted ? leftWidth : 240 }}
           aria-label="Buckets and prefixes"
         >
           <LeftTree
@@ -2848,7 +2894,9 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
             aria-orientation="vertical"
             aria-valuemin={160}
             aria-valuemax={560}
-            aria-valuenow={mounted ? Math.max(160, Math.min(560, leftWidth)) : 240}
+            aria-valuenow={
+              mounted ? Math.max(160, Math.min(560, leftWidth)) : 240
+            }
             tabIndex={0}
             className="resizer"
             onMouseDown={(e) => {
@@ -2896,7 +2944,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
         >
           {/* Middle-panel header (same height as App Header) */}
           <div
-            className="sticky top-0 z-10 h-14 bg-white border-b border-gray-200 shadow-sm"
+            className="sticky top-0 z-10 h-14 bg-[var(--surface)] border-b border-[var(--border)] text-[var(--foreground)] shadow-soft"
             role="region"
             aria-label="Current folder header"
           >
@@ -2977,7 +3025,7 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
             </div>
           </div>
           {/* Quick actions at top of middle (center) column */}
-          <div className="px-4 py-3 bg-white border-b border-gray-200">
+          <div className="px-4 py-3 bg-[var(--surface)] border-b border-[var(--border)]">
             <div className="flex items-center gap-3 flex-wrap">
               <button
                 className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-xl hover:bg-blue-100 transition"
@@ -3089,7 +3137,15 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                     {loading && files.length === 0 ? (
                       <div style={{ padding: 12, display: 'grid', gap: 8 }}>
                         {Array.from({ length: 8 }).map((_, i) => (
-                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '96px 1fr auto', gap: 12, alignItems: 'center' }}>
+                          <div
+                            key={i}
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '96px 1fr auto',
+                              gap: 12,
+                              alignItems: 'center',
+                            }}
+                          >
                             <Skeleton className="h-24 w-24" />
                             <div style={{ display: 'grid', gap: 8 }}>
                               <Skeleton className="h-5 w-[220px]" />
@@ -3102,222 +3158,270 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                     ) : null}
 
                     <ObjectExplorer
-                    bucketName={activeBucket!}
-                    listApi={async (p: OEListParams): Promise<OEListResult> => {
-                      // Helpers
-                      const normalize = (k: string | undefined | null) =>
-                        (k || '').replace(/^\/+|\/+$/g, '')
-                      const ensureFolderKey = (k: string) => {
-                        const n = normalize(k)
-                        return n ? `${n}/` : ''
-                      }
-                      const basename = (k: string) => {
-                        const n = normalize(k)
-                        if (!n) return '/'
-                        const parts = n.split('/').filter(Boolean)
-                        return parts[parts.length - 1] || '/'
-                      }
+                      bucketName={activeBucket!}
+                      listApi={async (
+                        p: OEListParams
+                      ): Promise<OEListResult> => {
+                        // Helpers
+                        const normalize = (k: string | undefined | null) =>
+                          (k || '').replace(/^\/+|\/+$/g, '')
+                        const ensureFolderKey = (k: string) => {
+                          const n = normalize(k)
+                          return n ? `${n}/` : ''
+                        }
+                        const basename = (k: string) => {
+                          const n = normalize(k)
+                          if (!n) return '/'
+                          const parts = n.split('/').filter(Boolean)
+                          return parts[parts.length - 1] || '/'
+                        }
 
-                      const bucket = p.bucket || activeBucket
-                      const basePrefix = ensureFolderKey(p.prefix ?? prefix ?? '')
-                      const limit =
-                        typeof p.maxKeys === 'number' && p.maxKeys > 0
-                          ? Math.min(p.maxKeys, 1000)
-                          : 1000
+                        const bucket = p.bucket || activeBucket
+                        const basePrefix = ensureFolderKey(
+                          p.prefix ?? prefix ?? ''
+                        )
+                        const limit =
+                          typeof p.maxKeys === 'number' && p.maxKeys > 0
+                            ? Math.min(p.maxKeys, 1000)
+                            : 1000
 
-                      // Cache hit fast-path
-                      const ck = cacheKey(bucket, basePrefix, p.continuationToken as any)
-                      const cached = pageCacheRef.current.get(ck)
-                      if (cached) {
+                        // Cache hit fast-path
+                        const ck = cacheKey(
+                          bucket,
+                          basePrefix,
+                          p.continuationToken as any
+                        )
+                        const cached = pageCacheRef.current.get(ck)
+                        if (cached) {
+                          try {
+                            perfMetricsRef.current.cacheHits += 1
+                            emitPerfMetrics()
+                          } catch {}
+                          return {
+                            folders: cached.folders,
+                            objects: cached.objects,
+                            nextContinuationToken: cached.nextContinuationToken,
+                            total: cached.total,
+                          }
+                        }
+
+                        // Fetch page (advanced hints best-effort)
+                        const page = await FilesClient.list({
+                          bucket,
+                          prefix: basePrefix || '',
+                          cursor: p.continuationToken as any,
+                          limit,
+                          category: undefined,
+                          delimiter: p.delimiter ?? '/',
+                          orderBy: p.orderBy as any,
+                          direction: p.direction as any,
+                          signal: (p as any)?.signal as any,
+                        })
+
+                        const items = Array.isArray(page?.items)
+                          ? page.items
+                          : []
+
+                        // Folders (only when hierarchical delimiter requested)
+                        const foldersSet = new Set<string>()
+                        if (p.delimiter === '/' || p.delimiter === undefined) {
+                          for (const f of items) {
+                            const raw = normalize(f.key || f.name || '')
+                            if (raw.endsWith('/')) {
+                              if (basePrefix) {
+                                const baseNorm = normalize(basePrefix)
+                                if (raw.startsWith(baseNorm + '/')) {
+                                  const rel = raw.slice(baseNorm.length + 1)
+                                  const first = rel
+                                    .split('/')
+                                    .filter(Boolean)[0]
+                                  if (first)
+                                    foldersSet.add(`${baseNorm}/${first}`)
+                                }
+                              } else {
+                                const first = raw.split('/').filter(Boolean)[0]
+                                if (first) foldersSet.add(first)
+                              }
+                              continue
+                            }
+                            const rel = basePrefix
+                              ? raw.startsWith(normalize(basePrefix) + '/')
+                                ? raw.slice(normalize(basePrefix).length + 1)
+                                : raw
+                              : raw
+                            if (!rel) continue
+                            const parts = rel.split('/').filter(Boolean)
+                            if (parts.length > 1) {
+                              const first = parts[0]
+                              const fold = basePrefix
+                                ? `${normalize(basePrefix)}/${first}`
+                                : first
+                              foldersSet.add(fold)
+                            }
+                          }
+                        }
+
+                        const objects = items.map((f) => {
+                          const k = normalize(f.key || f.name || f.id)
+                          return {
+                            key: k,
+                            name: basename(k),
+                            size: Number((f as any).size_bytes || 0),
+                            lastModified:
+                              (f as any).updated_at ||
+                              (f as any).created_at ||
+                              new Date(0).toISOString(),
+                          }
+                        })
+
+                        const folders = Array.from(foldersSet)
+                          .map((k) => ensureFolderKey(k))
+                          .sort((a, b) => basename(a).localeCompare(b))
+                          .map((k) => ({
+                            key: ensureFolderKey(k),
+                            name: basename(k),
+                          }))
+
+                        const result = {
+                          folders,
+                          objects,
+                          nextContinuationToken: (page as any)?.next_cursor,
+                          total: (page as any)?.total,
+                        }
+
+                        // Cache miss accounted before storing/prefetching
                         try {
-                          perfMetricsRef.current.cacheHits += 1
+                          perfMetricsRef.current.cacheMisses += 1
                           emitPerfMetrics()
                         } catch {}
-                        return {
-                          folders: cached.folders,
-                          objects: cached.objects,
-                          nextContinuationToken: cached.nextContinuationToken,
-                          total: cached.total,
-                        }
-                      }
 
-                      // Fetch page (advanced hints best-effort)
-                      const page = await FilesClient.list({
-                        bucket,
-                        prefix: basePrefix || '',
-                        cursor: p.continuationToken as any,
-                        limit,
-                        category: undefined,
-                        delimiter: p.delimiter ?? '/',
-                        orderBy: p.orderBy as any,
-                        direction: p.direction as any,
-                        signal: (p as any)?.signal as any,
-                      })
-
-                      const items = Array.isArray(page?.items) ? page.items : []
-
-                      // Folders (only when hierarchical delimiter requested)
-                      const foldersSet = new Set<string>()
-                      if (p.delimiter === '/' || p.delimiter === undefined) {
-                        for (const f of items) {
-                          const raw = normalize(f.key || f.name || '')
-                          if (raw.endsWith('/')) {
-                            if (basePrefix) {
-                              const baseNorm = normalize(basePrefix)
-                              if (raw.startsWith(baseNorm + '/')) {
-                                const rel = raw.slice(baseNorm.length + 1)
-                                const first = rel.split('/').filter(Boolean)[0]
-                                if (first) foldersSet.add(`${baseNorm}/${first}`)
-                              }
-                            } else {
-                              const first = raw.split('/').filter(Boolean)[0]
-                              if (first) foldersSet.add(first)
-                            }
-                            continue
-                          }
-                          const rel = basePrefix
-                            ? raw.startsWith(normalize(basePrefix) + '/')
-                              ? raw.slice(normalize(basePrefix).length + 1)
-                              : raw
-                            : raw
-                          if (!rel) continue
-                          const parts = rel.split('/').filter(Boolean)
-                          if (parts.length > 1) {
-                            const first = parts[0]
-                            const fold = basePrefix
-                              ? `${normalize(basePrefix)}/${first}`
-                              : first
-                            foldersSet.add(fold)
-                          }
-                        }
-                      }
-
-                      const objects = items.map((f) => {
-                        const k = normalize(f.key || f.name || f.id)
-                        return {
-                          key: k,
-                          name: basename(k),
-                          size: Number((f as any).size_bytes || 0),
-                          lastModified:
-                            (f as any).updated_at ||
-                            (f as any).created_at ||
-                            new Date(0).toISOString(),
-                        }
-                      })
-
-                      const folders = Array.from(foldersSet)
-                        .map((k) => ensureFolderKey(k))
-                        .sort((a, b) => basename(a).localeCompare(b))
-                        .map((k) => ({
-                          key: ensureFolderKey(k),
-                          name: basename(k),
-                        }))
-
-                      const result = {
-                        folders,
-                        objects,
-                        nextContinuationToken: (page as any)?.next_cursor,
-                        total: (page as any)?.total,
-                      }
-
-                      // Cache miss accounted before storing/prefetching
-                      try {
-                        perfMetricsRef.current.cacheMisses += 1
-                        emitPerfMetrics()
-                      } catch {}
-
-                      // Store in cache and prefetch next page one step ahead
-                      try {
-                        pageCacheRef.current.set(ck, result)
-                        ensureCacheBudget()
-                        const nextCursor = (page as any)?.next_cursor
-                        if (nextCursor) {
-                          const nextKey = cacheKey(bucket, basePrefix, nextCursor)
-                          // Only prefetch if not already cached
-                          if (!pageCacheRef.current.has(nextKey)) {
-                            // Fire-and-forget; rely on FilesClient GET cache + our cache
-                            void FilesClient.list({
+                        // Store in cache and prefetch next page one step ahead
+                        try {
+                          pageCacheRef.current.set(ck, result)
+                          ensureCacheBudget()
+                          const nextCursor = (page as any)?.next_cursor
+                          if (nextCursor) {
+                            const nextKey = cacheKey(
                               bucket,
-                              prefix: basePrefix || '',
-                              cursor: nextCursor,
-                              limit,
-                              delimiter: p.delimiter ?? '/',
-                              orderBy: p.orderBy as any,
-                              direction: p.direction as any,
-                            }).then((np) => {
-                              const nitems = Array.isArray(np?.items) ? np.items : []
-                              const nFoldersSet = new Set<string>()
-                              if (p.delimiter === '/' || p.delimiter === undefined) {
-                                for (const f of nitems) {
-                                  const raw = normalize(f.key || f.name || '')
-                                  if (raw.endsWith('/')) {
-                                    if (basePrefix) {
-                                      const baseNorm = normalize(basePrefix)
-                                      if (raw.startsWith(baseNorm + '/')) {
-                                        const rel = raw.slice(baseNorm.length + 1)
-                                        const first = rel.split('/').filter(Boolean)[0]
-                                        if (first) nFoldersSet.add(`${baseNorm}/${first}`)
+                              basePrefix,
+                              nextCursor
+                            )
+                            // Only prefetch if not already cached
+                            if (!pageCacheRef.current.has(nextKey)) {
+                              // Fire-and-forget; rely on FilesClient GET cache + our cache
+                              void FilesClient.list({
+                                bucket,
+                                prefix: basePrefix || '',
+                                cursor: nextCursor,
+                                limit,
+                                delimiter: p.delimiter ?? '/',
+                                orderBy: p.orderBy as any,
+                                direction: p.direction as any,
+                              })
+                                .then((np) => {
+                                  const nitems = Array.isArray(np?.items)
+                                    ? np.items
+                                    : []
+                                  const nFoldersSet = new Set<string>()
+                                  if (
+                                    p.delimiter === '/' ||
+                                    p.delimiter === undefined
+                                  ) {
+                                    for (const f of nitems) {
+                                      const raw = normalize(
+                                        f.key || f.name || ''
+                                      )
+                                      if (raw.endsWith('/')) {
+                                        if (basePrefix) {
+                                          const baseNorm = normalize(basePrefix)
+                                          if (raw.startsWith(baseNorm + '/')) {
+                                            const rel = raw.slice(
+                                              baseNorm.length + 1
+                                            )
+                                            const first = rel
+                                              .split('/')
+                                              .filter(Boolean)[0]
+                                            if (first)
+                                              nFoldersSet.add(
+                                                `${baseNorm}/${first}`
+                                              )
+                                          }
+                                        } else {
+                                          const first = raw
+                                            .split('/')
+                                            .filter(Boolean)[0]
+                                          if (first) nFoldersSet.add(first)
+                                        }
+                                        continue
                                       }
-                                    } else {
-                                      const first = raw.split('/').filter(Boolean)[0]
-                                      if (first) nFoldersSet.add(first)
+                                      const rel = basePrefix
+                                        ? raw.startsWith(
+                                            normalize(basePrefix) + '/'
+                                          )
+                                          ? raw.slice(
+                                              normalize(basePrefix).length + 1
+                                            )
+                                          : raw
+                                        : raw
+                                      if (!rel) continue
+                                      const parts = rel
+                                        .split('/')
+                                        .filter(Boolean)
+                                      if (parts.length > 1) {
+                                        const first = parts[0]
+                                        const fold = basePrefix
+                                          ? `${normalize(basePrefix)}/${first}`
+                                          : first
+                                        nFoldersSet.add(fold)
+                                      }
                                     }
-                                    continue
                                   }
-                                  const rel = basePrefix
-                                    ? raw.startsWith(normalize(basePrefix) + '/')
-                                      ? raw.slice(normalize(basePrefix).length + 1)
-                                      : raw
-                                    : raw
-                                  if (!rel) continue
-                                  const parts = rel.split('/').filter(Boolean)
-                                  if (parts.length > 1) {
-                                    const first = parts[0]
-                                    const fold = basePrefix
-                                      ? `${normalize(basePrefix)}/${first}`
-                                      : first
-                                    nFoldersSet.add(fold)
-                                  }
-                                }
-                              }
-                              const nobjects = nitems.map((f) => {
-                                const k = normalize(f.key || f.name || f.id)
-                                return {
-                                  key: k,
-                                  name: basename(k),
-                                  size: Number((f as any).size_bytes || 0),
-                                  lastModified:
-                                    (f as any).updated_at ||
-                                    (f as any).created_at ||
-                                    new Date(0).toISOString(),
-                                }
-                              })
-                              const nfolders = Array.from(nFoldersSet)
-                                .map((k) => ensureFolderKey(k))
-                                .sort((a, b) => basename(a).localeCompare(b))
-                                .map((k) => ({
-                                  key: ensureFolderKey(k),
-                                  name: basename(k),
-                                }))
-                              pageCacheRef.current.set(nextKey, {
-                                folders: nfolders,
-                                objects: nobjects,
-                                nextContinuationToken: (np as any)?.next_cursor,
-                                total: (np as any)?.total,
-                              })
-                              ensureCacheBudget()
-                              try {
-                                perfMetricsRef.current.prefetches += 1
-                                emitPerfMetrics()
-                              } catch {}
-                            }).catch(() => { /* ignore prefetch errors */ })
+                                  const nobjects = nitems.map((f) => {
+                                    const k = normalize(f.key || f.name || f.id)
+                                    return {
+                                      key: k,
+                                      name: basename(k),
+                                      size: Number((f as any).size_bytes || 0),
+                                      lastModified:
+                                        (f as any).updated_at ||
+                                        (f as any).created_at ||
+                                        new Date(0).toISOString(),
+                                    }
+                                  })
+                                  const nfolders = Array.from(nFoldersSet)
+                                    .map((k) => ensureFolderKey(k))
+                                    .sort((a, b) =>
+                                      basename(a).localeCompare(b)
+                                    )
+                                    .map((k) => ({
+                                      key: ensureFolderKey(k),
+                                      name: basename(k),
+                                    }))
+                                  pageCacheRef.current.set(nextKey, {
+                                    folders: nfolders,
+                                    objects: nobjects,
+                                    nextContinuationToken: (np as any)
+                                      ?.next_cursor,
+                                    total: (np as any)?.total,
+                                  })
+                                  ensureCacheBudget()
+                                  try {
+                                    perfMetricsRef.current.prefetches += 1
+                                    emitPerfMetrics()
+                                  } catch {}
+                                })
+                                .catch(() => {
+                                  /* ignore prefetch errors */
+                                })
+                            }
                           }
+                        } catch {
+                          /* ignore cache errors */
                         }
-                      } catch { /* ignore cache errors */ }
 
-                      return result
-                    }}
-                  />
+                        return result
+                      }}
+                    />
                   </>
                 )
               ) : (
@@ -3360,7 +3464,9 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
             aria-orientation="vertical"
             aria-valuemin={220}
             aria-valuemax={640}
-            aria-valuenow={mounted ? Math.max(220, Math.min(640, rightWidth)) : 360}
+            aria-valuenow={
+              mounted ? Math.max(220, Math.min(640, rightWidth)) : 360
+            }
             tabIndex={0}
             className="resizer"
             onMouseDown={(e) => {
@@ -3403,10 +3509,11 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
         <aside
           id="right-panel"
           suppressHydrationWarning
-          className={`panel right bg-white border-l border-gray-200 ${rightCollapsed ? 'collapsed' : ''}`}
+          className={`panel right bg-[var(--surface)] border-l border-[var(--border)] text-[var(--foreground)] ${rightCollapsed ? 'collapsed' : ''}`}
           style={{
-            width: rightCollapsed ? 0 : (mounted ? rightWidth : 360),
-            transition: 'width var(--motion-duration-fast) var(--motion-ease-standard)',
+            width: rightCollapsed ? 0 : mounted ? rightWidth : 360,
+            transition:
+              'width var(--motion-duration-fast) var(--motion-ease-standard)',
           }}
           aria-label="Details"
           role="complementary"
@@ -3527,7 +3634,6 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
                   }}
                 />
               )}
-
             </div>
           </div>
         </aside>
@@ -3847,7 +3953,10 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
       )}
 
       {/* Settings modal mount (moved from TopNav) */}
-      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
 
       <UploadManager
         open={uploadOpen}
@@ -3916,7 +4025,9 @@ function ensureCacheBudget(limit = pageCacheLimitRef.current) {
             style={{ maxWidth: 480 }}
           >
             <div style={{ padding: 16 }}>
-              <h2 id="create-bucket-title" style={{ marginBottom: 8 }}>Create bucket</h2>
+              <h2 id="create-bucket-title" style={{ marginBottom: 8 }}>
+                Create bucket
+              </h2>
               <p style={{ color: '#6b7280', marginBottom: 12 }}>
                 Enter a unique bucket name.
               </p>
@@ -4384,7 +4495,7 @@ function Toolbar(props: ToolbarProps) {
             bucket: activeBucket || undefined,
             prefix,
           }}
-          onChange={(f) => {
+          onChange={(f: SearchFilters) => {
             const q = (f.query || '').trim()
             onChangeSearchText(q)
             // Wire to centralized debounced search in store
@@ -4411,7 +4522,7 @@ function Toolbar(props: ToolbarProps) {
               metadata: f.metadata || search.filters.metadata,
             })
           }}
-          onSubmit={(f) => {
+          onSubmit={(f: SearchFilters) => {
             // Normalize and navigate to /search with query params for the dedicated Search page
             const qs = new URLSearchParams()
             if (f.query) qs.set('query', f.query)
@@ -4847,10 +4958,21 @@ function FileGrid(props: FileGridProps) {
       }
       const f = entry.file
       const sel = selected.has(f.id)
+      const tagEntries = Object.entries((f as any)?.tags || {}) as Array<
+        [string, string]
+      >
+      const tagPreview = tagEntries.slice(0, 4)
+      const tagRemainder = Math.max(0, tagEntries.length - tagPreview.length)
       return (
         <div
           style={{ ...style }}
-          className={`grid-row ${sel ? 'selected' : ''}`}
+          className={[
+            'group grid-row cursor-pointer',
+            'rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-soft',
+            'px-4 py-3 gap-3',
+            'hover:bg-[var(--accent)]/20 transition-colors',
+            sel ? 'ring-2 ring-[var(--ring)]/60' : '',
+          ].join(' ')}
           onClick={(e) => applySelectAtIndex(e, index)}
           onDoubleClick={() => onOpenViewer(f)}
           onContextMenu={(e) => openContextFor(e, f, index)}
@@ -4864,10 +4986,8 @@ function FileGrid(props: FileGridProps) {
               applySelectAtIndex(e as any, index)
               return
             }
-            // Open context menu via keyboard (ContextMenu key or Shift+F10)
             if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
               e.preventDefault()
-              // Ensure this row is selected (single-select)
               const next = new Set<string>(selected)
               if (!next.has(f.id)) {
                 next.clear()
@@ -4875,7 +4995,6 @@ function FileGrid(props: FileGridProps) {
                 lastAnchorIndexRef.current = index
                 setSelection(next)
               }
-              // Position menu at the row center
               const rect = (
                 e.currentTarget as HTMLElement
               ).getBoundingClientRect()
@@ -4888,26 +5007,8 @@ function FileGrid(props: FileGridProps) {
             }
           }}
         >
-          <div className="thumb" style={{ position: 'relative' }}>
-            <input
-              type="checkbox"
-              className="fi-checkbox"
-              data-testid={`file-checkbox-${f.id}`}
-              checked={sel}
-              onChange={(ev) => {
-                ev.stopPropagation()
-                applySelectAtIndex(ev as any, index)
-              }}
-              aria-label={`Select ${f.name || f.key}`}
-              style={{
-                position: 'absolute',
-                top: 6,
-                left: 6,
-                width: 16,
-                height: 16,
-              }}
-              onClick={(ev) => ev.stopPropagation()}
-            />
+          {/* Thumb */}
+          <div className="thumb relative rounded-md overflow-hidden">
             {f.has_thumbnail ? (
               <ProgressiveThumb
                 fileId={f.id}
@@ -4919,43 +5020,93 @@ function FileGrid(props: FileGridProps) {
               <FileTypeIcon file={f} size={96} />
             )}
           </div>
-          <div className="meta">
-            <div className="name">{f.name || f.key}</div>
-            <div className="sub">
-              <span>{formatBytes(f.size_bytes)}</span> ·{' '}
-              <span>{f.mime_type}</span>
+
+          {/* Meta */}
+          <div className="meta min-w-0">
+            <div className="name font-semibold text-[var(--foreground)] truncate">
+              {f.name || f.key}
             </div>
+            <div className="sub text-xs text-[var(--muted-foreground)] mt-1 flex items-center gap-2">
+              <span>{formatBytes(f.size_bytes)}</span>
+              <span className="opacity-60">•</span>
+              <span className="truncate">{f.mime_type}</span>
+            </div>
+            {/* Tags line */}
+            {tagEntries.length > 0 && (
+              <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                {tagPreview.map(([k, v]) => (
+                  <span
+                    key={k}
+                    className="inline-flex items-center text-[10px] leading-4 text-[var(--muted-foreground)] px-2 py-0.5 rounded-full bg-[var(--accent)]/60 border border-[var(--border)]"
+                    title={`${k}: ${v}`}
+                  >
+                    <span className="opacity-80">{k}</span>
+                    <span className="mx-1 opacity-50">:</span>
+                    <span className="font-medium">
+                      {String(v).slice(0, 24)}
+                    </span>
+                  </span>
+                ))}
+                {tagRemainder > 0 && (
+                  <span className="inline-flex items-center text-[10px] leading-4 text-[var(--muted-foreground)] px-2 py-0.5 rounded-full bg-[var(--accent)]/40 border border-[var(--border)]">
+                    +{tagRemainder} more
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          <div className="actions">
+
+          {/* Actions + right-side checkbox */}
+          <div className="actions flex items-center gap-2 justify-end">
+            <input
+              type="checkbox"
+              className="fm-checkbox h-5 w-5 border-[var(--border)] rounded-md"
+              data-testid={`file-checkbox-${f.id}`}
+              checked={sel}
+              onChange={(ev) => {
+                ev.stopPropagation()
+                applySelectAtIndex(ev as any, index)
+              }}
+              onClick={(ev) => ev.stopPropagation()}
+              aria-label={`Select ${f.name || f.key}`}
+            />
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onRename(f)
               }}
+              title="Rename"
             >
               Rename
             </button>
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenViewer(f)
               }}
+              title="Preview"
             >
               Preview
             </button>
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenVersions(f)
               }}
+              title="Versions"
             >
               Versions
             </button>
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenMetadata(f)
               }}
+              title="Metadata"
             >
               Metadata
             </button>
@@ -5030,18 +5181,20 @@ function FileGrid(props: FileGridProps) {
       }
       const f = entry.file
       const sel = selected.has(f.id)
+      const tagEntries = Object.entries((f as any)?.tags || {}) as Array<
+        [string, string]
+      >
+      const tagPreview = tagEntries.slice(0, 3)
       return (
         <div
-          style={{
-            ...style,
-            display: 'grid',
-            gridTemplateColumns: '48px 1fr 160px 220px 160px auto',
-            alignItems: 'center',
-            gap: 12,
-            padding: 8,
-            borderBottom: '1px solid #f0f0f0',
-          }}
-          className={sel ? 'selected' : ''}
+          style={style}
+          className={[
+            'grid items-center gap-3 px-3 py-2',
+            'grid-cols-[48px_1fr_140px_200px_160px_auto]',
+            'border-b border-[var(--border)]',
+            'rounded-none bg-[var(--surface)]',
+            sel ? 'ring-2 ring-[var(--ring)]/60' : '',
+          ].join(' ')}
           onClick={(e) => applySelectAtIndex(e, index)}
           onDoubleClick={() => onOpenViewer(f)}
           onContextMenu={(e) => openContextFor(e, f, index)}
@@ -5055,7 +5208,6 @@ function FileGrid(props: FileGridProps) {
               applySelectAtIndex(e as any, index)
               return
             }
-            // Open context menu via keyboard (ContextMenu key or Shift+F10)
             if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
               e.preventDefault()
               const next = new Set<string>(selected)
@@ -5077,29 +5229,8 @@ function FileGrid(props: FileGridProps) {
             }
           }}
         >
-          <div
-            className="thumb"
-            style={{ width: 48, height: 48, position: 'relative' }}
-          >
-            <input
-              type="checkbox"
-              className="fi-checkbox"
-              data-testid={`file-checkbox-${f.id}`}
-              checked={sel}
-              onChange={(ev) => {
-                ev.stopPropagation()
-                applySelectAtIndex(ev as any, index)
-              }}
-              aria-label={`Select ${f.name || f.key}`}
-              style={{
-                position: 'absolute',
-                top: 4,
-                left: 4,
-                width: 14,
-                height: 14,
-              }}
-              onClick={(ev) => ev.stopPropagation()}
-            />
+          {/* Thumb */}
+          <div className="thumb w-12 h-12 rounded-md overflow-hidden">
             {f.has_thumbnail ? (
               <ProgressiveThumb
                 fileId={f.id}
@@ -5111,51 +5242,88 @@ function FileGrid(props: FileGridProps) {
               <FileTypeIcon file={f} size={48} />
             )}
           </div>
-          <div
-            style={{
-              fontWeight: 600,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {f.name || f.key}
+
+          {/* Name + tags (stack) */}
+          <div className="min-w-0">
+            <div className="font-semibold truncate">{f.name || f.key}</div>
+            {tagEntries.length > 0 && (
+              <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                {tagPreview.map(([k, v]) => (
+                  <span
+                    key={k}
+                    className="inline-flex items-center text-[10px] leading-4 text-[var(--muted-foreground)] px-2 py-0.5 rounded-full bg-[var(--accent)]/60 border border-[var(--border)]"
+                    title={`${k}: ${v}`}
+                  >
+                    <span className="opacity-80">{k}</span>
+                    <span className="mx-1 opacity-50">:</span>
+                    <span className="font-medium">
+                      {String(v).slice(0, 18)}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-          <div>{formatBytes(f.size_bytes)}</div>
-          <div style={{ color: '#6b7280' }}>{f.mime_type}</div>
-          <div style={{ color: '#6b7280' }}>
+
+          <div className="text-sm">{formatBytes(f.size_bytes)}</div>
+          <div className="text-sm text-[var(--muted-foreground)] truncate">
+            {f.mime_type}
+          </div>
+          <div className="text-sm text-[var(--muted-foreground)]">
             {f.updated_at ? new Date(f.updated_at).toLocaleString() : ''}
           </div>
-          <div style={{ justifySelf: 'end', display: 'flex', gap: 8 }}>
+
+          {/* Actions + right checkbox */}
+          <div className="justify-self-end flex items-center gap-2">
+            <input
+              type="checkbox"
+              className="fm-checkbox h-4 w-4 border-[var(--border)] rounded"
+              data-testid={`file-checkbox-${f.id}`}
+              checked={sel}
+              onChange={(ev) => {
+                ev.stopPropagation()
+                applySelectAtIndex(ev as any, index)
+              }}
+              onClick={(ev) => ev.stopPropagation()}
+              aria-label={`Select ${f.name || f.key}`}
+            />
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onRename(f)
               }}
+              title="Rename"
             >
               Rename
             </button>
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenViewer(f)
               }}
+              title="Preview"
             >
               Preview
             </button>
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenVersions(f)
               }}
+              title="Versions"
             >
               Versions
             </button>
             <button
+              className="navlink"
               onClick={(e) => {
                 e.stopPropagation()
                 onOpenMetadata(f)
               }}
+              title="Metadata"
             >
               Metadata
             </button>
@@ -5234,6 +5402,10 @@ function FileGrid(props: FileGridProps) {
       }
       const f = entry.file
       const sel = selected.has(f.id)
+      const tagEntries = Object.entries((f as any)?.tags || {}) as Array<
+        [string, string]
+      >
+      const tagPreview = tagEntries.slice(0, 3)
       return (
         <div
           style={{ ...style, padding: 8 }}
@@ -5251,7 +5423,6 @@ function FileGrid(props: FileGridProps) {
               applySelectAtIndex(e as any, index)
               return
             }
-            // Open context menu via keyboard (ContextMenu key or Shift+F10)
             if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
               e.preventDefault()
               const next = new Set<string>(selected)
@@ -5274,58 +5445,61 @@ function FileGrid(props: FileGridProps) {
           }}
         >
           <div
-            className={`grid-row ${sel ? 'selected' : ''}`}
-            style={{ height: '100%', position: 'relative' }}
+            className={[
+              'grid-row relative h-full',
+              'rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-soft',
+              'hover:bg-[var(--accent)]/20 transition-colors',
+              sel ? 'ring-2 ring-[var(--ring)]/60' : '',
+            ].join(' ')}
           >
+            {/* Top-right checkbox */}
             <input
               type="checkbox"
-              className="fi-checkbox"
+              className="fm-checkbox h-5 w-5 border-[var(--border)] rounded-md absolute top-2 right-2 z-10"
               data-testid={`file-checkbox-${f.id}`}
               checked={sel}
               onChange={(ev) => {
                 ev.stopPropagation()
                 applySelectAtIndex(ev as any, index)
               }}
-              aria-label={`Select ${f.name || f.key}`}
-              style={{
-                position: 'absolute',
-                top: 8,
-                left: 8,
-                width: 16,
-                height: 16,
-                zIndex: 2,
-              }}
               onClick={(ev) => ev.stopPropagation()}
+              aria-label={`Select ${f.name || f.key}`}
             />
-            <div
-              className="thumb"
-              style={{ width: 96, height: 96, margin: '0 auto' }}
-            >
+
+            <div className="thumb w-24 h-24 mx-auto mt-4 rounded-md overflow-hidden">
               {f.has_thumbnail ? (
-                 <ProgressiveThumb
-                   fileId={f.id}
-                   alt={f.name || f.key || f.id}
-                   width={96}
-                   height={96}
-                 />
-               ) : (
-                 <FileTypeIcon file={f} size={96} />
-               )}
+                <ProgressiveThumb
+                  fileId={f.id}
+                  alt={f.name || f.key || f.id}
+                  width={96}
+                  height={96}
+                />
+              ) : (
+                <FileTypeIcon file={f} size={96} />
+              )}
             </div>
-            <div className="meta" style={{ textAlign: 'center', marginTop: 6 }}>
-              <div
-                className="name"
-                style={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {f.name || f.key}
+            <div className="meta text-center mt-2 px-3 pb-3">
+              <div className="name truncate font-medium">{f.name || f.key}</div>
+              <div className="sub text-[12px] text-[var(--muted-foreground)] mt-1">
+                {formatBytes(f.size_bytes)}
               </div>
-              <div className="sub" style={{ color: '#6b7280', fontSize: 12 }}>
-                <span>{formatBytes(f.size_bytes)}</span>
-              </div>
+              {tagEntries.length > 0 && (
+                <div className="mt-2 flex items-center justify-center gap-1.5 flex-wrap">
+                  {tagPreview.map(([k, v]) => (
+                    <span
+                      key={k}
+                      className="inline-flex items-center text-[10px] leading-4 text-[var(--muted-foreground)] px-2 py-0.5 rounded-full bg-[var(--accent)]/60 border border-[var(--border)]"
+                      title={`${k}: ${v}`}
+                    >
+                      <span className="opacity-80">{k}</span>
+                      <span className="mx-1 opacity-50">:</span>
+                      <span className="font-medium">
+                        {String(v).slice(0, 16)}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -5589,8 +5763,8 @@ function FileGrid(props: FileGridProps) {
 
 /* ========== Utils & styles ========== */
 
-function formatBytes(bytes: number) {
-  if (bytes === 0) return '0 B'
+function formatBytes(bytes?: number) {
+  if (!bytes || bytes <= 0) return '0 B'
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
@@ -5898,7 +6072,8 @@ function ProgressiveThumb(props: {
         objectFit: 'cover',
         imageRendering: srcFull ? 'auto' : 'pixelated',
         filter: srcFull ? 'none' : 'blur(8px)',
-        transition: 'filter var(--motion-duration-fast) var(--motion-ease-standard)',
+        transition:
+          'filter var(--motion-duration-fast) var(--motion-ease-standard)',
       }}
     />
   )
@@ -6084,14 +6259,14 @@ const layoutStyles = `
  overflow: auto;
  transition: width var(--motion-duration-fast) var(--motion-ease-standard);
 }
- 
+
 /* Full-width decorative header bars */
 .hbar {
  width: 100%;
 }
 .hbar.h1 { height: 50px; background: #e0f2fe; border-bottom: 1px solid #bae6fd; }
 .hbar.h2 { height: 40px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
- 
+
 /* Center-panel header (same size as App Header ~56px) */
 .center-header {
   position: sticky;

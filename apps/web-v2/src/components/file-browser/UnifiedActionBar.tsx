@@ -2,7 +2,13 @@
 
 import React, { useMemo } from 'react'
 import type { FileMeta } from '@/lib/file-manager-client'
-import { getActionsForContext, getUserRole, getUserPermissions, type UserRole, type ActionDescriptor } from '@/lib/action-registry'
+import {
+  getActionsForContext,
+  getUserRole,
+  getUserPermissions,
+  type UserRole,
+  type ActionDescriptor,
+} from '@/lib/action-registry'
 
 interface UnifiedActionBarProps {
   // Context state
@@ -98,15 +104,39 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
     error,
   } = props
 
+  // Tailwind utility mappings using globals.css tokens
+  const ui = {
+    root: 'rounded-xl border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-soft p-3 md:p-4 space-y-3',
+    section: 'flex flex-wrap items-center justify-between gap-2',
+    group: 'flex items-center gap-2',
+    contextBadge:
+      'text-xs font-semibold rounded-md px-2 py-1 bg-[var(--accent)]/15 border border-[var(--border)] text-[var(--foreground)]',
+    btn: 'inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--accent)]/20 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] shadow-soft transition',
+    iconBtn:
+      'inline-flex items-center justify-center w-8 h-8 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--accent)]/20 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] shadow-soft transition',
+    input:
+      'h-9 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]',
+    select:
+      'h-9 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]',
+    status:
+      'text-xs px-2 py-1 rounded-md bg-[var(--accent)]/10 text-[var(--muted-foreground)]',
+    viewBtn: (active: boolean) =>
+      `inline-flex items-center justify-center w-8 h-8 rounded-md border ${active ? 'bg-[var(--accent)]/25 border-[var(--border)]' : 'bg-[var(--surface)] border-[var(--border)]'} text-[var(--foreground)] hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] shadow-soft`,
+  }
+
   // Selection-driven context summary
   const selectionContext = useMemo(() => {
-    const selectedFiles = files.filter(f => selected.has(f.id))
+    const selectedFiles = files.filter((f) => selected.has(f.id))
     const selectedCount = selected.size
     const hasSelection = selectedCount > 0
     const isSingleSelection = selectedCount === 1
     const isMultiSelection = selectedCount > 1
     const selectedFile = isSingleSelection ? selectedFiles[0] : null
-    const isFolderSelected = !!(selectedFile && ((selectedFile as any)?.mime_type === 'folder' || (selectedFile.key || selectedFile.name || '').endsWith('/')))
+    const isFolderSelected = !!(
+      selectedFile &&
+      ((selectedFile as any)?.mime_type === 'folder' ||
+        (selectedFile.key || selectedFile.name || '').endsWith('/'))
+    )
 
     return {
       selectedCount,
@@ -135,17 +165,26 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
       files,
       operations: {
         rename: (_f: FileMeta) => onRenameSelected(),
-        openViewer: (_f: FileMeta) => {},        // handled elsewhere (preview pane / open action)
+        openViewer: (_f: FileMeta) => {}, // handled elsewhere (preview pane / open action)
         openVersions: (_f: FileMeta) => {},
         openMetadata: (_f: FileMeta) => {},
         share: (_f: FileMeta) => onShareSelected(),
         batchDelete: () => onDeleteSelected(),
-        openCopyMove: (mode: 'copy' | 'move') => (mode === 'copy' ? onCopySelected() : onMoveSelected()),
-        download: (_f: FileMeta) => {},           // Download button wired via context menu/file rows
+        openCopyMove: (mode: 'copy' | 'move') =>
+          mode === 'copy' ? onCopySelected() : onMoveSelected(),
+        download: (_f: FileMeta) => {}, // Download button wired via context menu/file rows
       },
     }
     return getActionsForContext(ctx as any) as ActionDescriptor[]
-  }, [selected, files, onRenameSelected, onShareSelected, onDeleteSelected, onCopySelected, onMoveSelected])
+  }, [
+    selected,
+    files,
+    onRenameSelected,
+    onShareSelected,
+    onDeleteSelected,
+    onCopySelected,
+    onMoveSelected,
+  ])
 
   // Utility helpers
   const actionById = useMemo(() => {
@@ -170,7 +209,8 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
         openMetadata: (_f: FileMeta) => {},
         share: (_f: FileMeta) => onShareSelected(),
         batchDelete: () => onDeleteSelected(),
-        openCopyMove: (mode: 'copy' | 'move') => (mode === 'copy' ? onCopySelected() : onMoveSelected()),
+        openCopyMove: (mode: 'copy' | 'move') =>
+          mode === 'copy' ? onCopySelected() : onMoveSelected(),
         download: (_f: FileMeta) => {},
       },
     } as any
@@ -180,14 +220,14 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
     return (
       <button
         key={a.id}
-        className={`action-btn ${a.id}`}
+        className={`${ui.btn} action-${a.id}`}
         onClick={onClick}
         disabled={!enabled}
         title={a.label}
         aria-label={a.label}
       >
-        <span className="action-icon" aria-hidden="true">{getDefaultIcon(a.id)}</span>
-        <span className="action-label">{a.label}</span>
+        <span aria-hidden="true">{getDefaultIcon(a.id)}</span>
+        <span>{a.label}</span>
       </button>
     )
   }
@@ -210,122 +250,163 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
     .map((id) => actionById.get(id))
     .filter(Boolean) as ActionDescriptor[]
 
-  const secondaryActions = regActions.filter((a: ActionDescriptor) => !primaryIds.includes(a.id))
+  const secondaryActions = regActions.filter(
+    (a: ActionDescriptor) => !primaryIds.includes(a.id)
+  )
 
   return (
-    <div className="unified-action-bar" role="toolbar" aria-label="File actions">
+    <div className={ui.root} role="toolbar" aria-label="File actions">
       {/* Top Section: selection context + primary actions + view toggles */}
-      <div className="action-section primary-actions">
-        <div className="action-group context-indicator">
-          <div className="context-badge" data-context={selectionContext.hasSelection ? 'selected' : 'browse'}>
+      <div className={ui.section}>
+        <div className={ui.group}>
+          <div
+            className={ui.contextBadge}
+            data-context={selectionContext.hasSelection ? 'selected' : 'browse'}
+          >
             {selectionContext.hasSelection ? (
-              <span className="selection-count">{selectionContext.selectedCount} selected</span>
+              <span className="selection-count">
+                {selectionContext.selectedCount} selected
+              </span>
             ) : (
               <span className="browse-mode">Browse</span>
             )}
           </div>
         </div>
 
-        <div className="action-group main-actions">
+        <div className={ui.group}>
           {primaryActions.map(buildActionButton)}
 
           {!selectionContext.hasSelection && (
             <>
               <button
-                className="action-btn upload"
+                className={ui.btn}
                 onClick={onOpenUpload}
                 disabled={!activeBucket || loading}
                 title={activeBucket ? 'Upload files' : 'Select a bucket first'}
                 aria-label="Upload"
                 data-testid="btn-upload"
               >
-                <span className="action-icon" aria-hidden="true">📤</span>
+                <span className="action-icon" aria-hidden="true">
+                  📤
+                </span>
                 <span className="action-label">Upload</span>
               </button>
               <button
-                className="action-btn create-folder"
+                className={ui.btn}
                 onClick={onCreateFolder}
                 disabled={!activeBucket || loading}
-                title={activeBucket ? 'Create folder in current path' : 'Select a bucket first'}
+                title={
+                  activeBucket
+                    ? 'Create folder in current path'
+                    : 'Select a bucket first'
+                }
                 aria-label="New Folder"
               >
-                <span className="action-icon" aria-hidden="true">📁</span>
+                <span className="action-icon" aria-hidden="true">
+                  📁
+                </span>
                 <span className="action-label">New Folder</span>
               </button>
               <button
-                className="action-btn folder-tools"
+                className={ui.btn}
                 onClick={onOpenFolderOps}
                 disabled={!activeBucket || loading}
-                title={activeBucket ? 'Folder operations (copy/move/rename/delete/tag/zip)' : 'Select a bucket first'}
+                title={
+                  activeBucket
+                    ? 'Folder operations (copy/move/rename/delete/tag/zip)'
+                    : 'Select a bucket first'
+                }
                 aria-label="Folder Tools"
               >
-                <span className="action-icon" aria-hidden="true">🗂</span>
+                <span className="action-icon" aria-hidden="true">
+                  🗂
+                </span>
                 <span className="action-label">Folder Tools</span>
               </button>
               <button
-                className="action-btn template-create"
+                className={ui.btn}
                 onClick={onOpenTemplate}
                 disabled={!activeBucket || loading}
-                title={activeBucket ? 'Create folder structure from template' : 'Select a bucket first'}
+                title={
+                  activeBucket
+                    ? 'Create folder structure from template'
+                    : 'Select a bucket first'
+                }
                 aria-label="Create from template"
               >
-                <span className="action-icon" aria-hidden="true">📦</span>
+                <span className="action-icon" aria-hidden="true">
+                  📦
+                </span>
                 <span className="action-label">Template</span>
               </button>
             </>
           )}
         </div>
 
-        <div className="action-group view-controls">
+        <div className={ui.group}>
           <button
-            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            className={ui.viewBtn(viewMode === 'grid')}
             onClick={() => onChangeViewMode('grid')}
             title="Grid view"
             aria-pressed={viewMode === 'grid'}
           >
-            <span className="btn-icon" aria-hidden="true">🟦</span>
+            <span className="btn-icon" aria-hidden="true">
+              🟦
+            </span>
             <span className="sr-only">Grid view</span>
           </button>
           <button
-            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            className={ui.viewBtn(viewMode === 'list')}
             onClick={() => onChangeViewMode('list')}
             title="List view"
             aria-pressed={viewMode === 'list'}
             data-testid="toolbar-list"
           >
-            <span className="btn-icon" aria-hidden="true">📋</span>
+            <span className="btn-icon" aria-hidden="true">
+              📋
+            </span>
             <span className="sr-only">List view</span>
           </button>
           <button
-            className={`view-btn ${viewMode === 'details' ? 'active' : ''}`}
+            className={ui.viewBtn(viewMode === 'details')}
             onClick={() => onChangeViewMode('details')}
             title="Details view"
             aria-pressed={viewMode === 'details'}
           >
-            <span className="btn-icon" aria-hidden="true">📊</span>
+            <span className="btn-icon" aria-hidden="true">
+              📊
+            </span>
             <span className="sr-only">Details view</span>
           </button>
           <button
-            className={`view-btn ${viewMode === 'timeline' ? 'active' : ''}`}
+            className={ui.viewBtn(viewMode === 'timeline')}
             onClick={() => onChangeViewMode('timeline')}
             title="Timeline view"
             aria-pressed={viewMode === 'timeline'}
           >
-            <span className="btn-icon" aria-hidden="true">🕓</span>
+            <span className="btn-icon" aria-hidden="true">
+              🕓
+            </span>
             <span className="sr-only">Timeline view</span>
           </button>
           <button
-            className="view-btn"
+            className={ui.iconBtn}
             title="AI Relevance"
             aria-pressed={false}
             data-testid="toolbar-ai"
             onClick={() => {
               try {
-                window.dispatchEvent(new CustomEvent('afm:action', { detail: { action: 'toggleAI' } }))
+                window.dispatchEvent(
+                  new CustomEvent('afm:action', {
+                    detail: { action: 'toggleAI' },
+                  })
+                )
               } catch {}
             }}
           >
-            <span className="btn-icon" aria-hidden="true">✨</span>
+            <span className="btn-icon" aria-hidden="true">
+              ✨
+            </span>
             <span className="sr-only">AI Relevance</span>
           </button>
         </div>
@@ -333,115 +414,147 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
 
       {/* Empty buckets helper */}
       {buckets.length === 0 ? (
-        <div className="action-section empty-buckets" role="alert" aria-live="polite">
+        <div
+          className={`${ui.section} text-[var(--muted-foreground)]`}
+          role="alert"
+          aria-live="polite"
+        >
           <span style={{ fontWeight: 600 }}>No buckets found.</span>
           <button
-            className="action-btn create-bucket"
+            className={ui.btn}
             onClick={() => onCreateBucket?.()}
             aria-label="Create bucket"
           >
-            <span className="action-icon" aria-hidden="true">➕</span>
+            <span className="action-icon" aria-hidden="true">
+              ➕
+            </span>
             <span className="action-label">Create bucket</span>
           </button>
         </div>
       ) : null}
 
       {/* Middle Section: navigation and search */}
-      <div className="action-section navigation">
-        <div className="action-group bucket-selector">
-          <label className="selector-label" data-testid="bucket-select-label">
+      <div className={ui.section}>
+        <div className={ui.group}>
+          <label
+            className="text-xs text-[var(--muted-foreground)]"
+            data-testid="bucket-select-label"
+          >
             <span className="sr-only">Bucket</span>
             <select
               value={activeBucket || ''}
               onChange={(e) => onChangeBucket(e.target.value || undefined)}
-              className="bucket-select"
+              className={ui.select}
               data-testid="bucket-select"
               disabled={loading}
             >
               <option value="">Select bucket</option>
               {buckets.map((bucket) => (
-                <option key={bucket.name} value={bucket.name}>{bucket.name}</option>
+                <option key={bucket.name} value={bucket.name}>
+                  {bucket.name}
+                </option>
               ))}
             </select>
           </label>
         </div>
 
-        <div className="action-group path-navigation">
+        <div className={ui.group}>
           <input
             type="text"
             value={prefix}
             onChange={(e) => onChangePrefix(e.target.value)}
             placeholder="Path prefix"
-            className="path-input"
+            className={ui.input}
             disabled={!activeBucket || loading}
           />
         </div>
 
-        <div className="action-group search-box">
+        <div className={ui.group}>
           <input
             type="search"
             value={searchText}
             onChange={(e) => onChangeSearchText(e.target.value)}
             placeholder="Search files..."
-            className="search-input"
+            className={ui.input}
             disabled={loading}
             data-testid="search-input"
           />
         </div>
 
-        <div className="action-group utility-actions">
+        <div className={ui.group}>
           <button
-            className={`utility-btn ${groupFolders ? 'active' : ''}`}
+            className={`${ui.btn} ${groupFolders ? 'bg-[var(--accent)]/25' : ''}`}
             onClick={onToggleGroupFolders}
             title="Toggle folder grouping"
             aria-pressed={groupFolders}
           >
-            <span className="btn-icon" aria-hidden="true">{groupFolders ? '📁 On' : '📁 Off'}</span>
-            <span className="sr-only">Folder grouping {groupFolders ? 'on' : 'off'}</span>
+            <span className="btn-icon" aria-hidden="true">
+              {groupFolders ? '📁 On' : '📁 Off'}
+            </span>
+            <span className="sr-only">
+              Folder grouping {groupFolders ? 'on' : 'off'}
+            </span>
           </button>
 
           <button
-            className="utility-btn refresh"
+            className={ui.iconBtn}
             onClick={onRefresh}
             disabled={loading || !activeBucket}
             title="Refresh"
           >
-            <span className="btn-icon" aria-hidden="true">🔄</span>
+            <span className="btn-icon" aria-hidden="true">
+              🔄
+            </span>
             <span className="sr-only">Refresh</span>
           </button>
 
           <button
-            className="utility-btn load-more"
+            className={ui.iconBtn}
             onClick={onLoadMore}
             disabled={!canLoadMore || loading}
             title="Load more"
           >
-            <span className="btn-icon" aria-hidden="true">⏬</span>
+            <span className="btn-icon" aria-hidden="true">
+              ⏬
+            </span>
             <span className="sr-only">Load more</span>
           </button>
 
-          <button className="utility-btn admin" onClick={onOpenAdmin} title="Admin" disabled={!activeBucket}>
-            <span className="btn-icon" aria-hidden="true">🛠️</span>
+          <button
+            className={ui.iconBtn}
+            onClick={onOpenAdmin}
+            title="Admin"
+            disabled={!activeBucket}
+          >
+            <span className="btn-icon" aria-hidden="true">
+              🛠️
+            </span>
             <span className="sr-only">Admin</span>
           </button>
 
-          <button className="utility-btn tasks" onClick={onOpenTasks} title="Background tasks">
-            <span className="btn-icon" aria-hidden="true">📋</span>
+          <button
+            className={ui.iconBtn}
+            onClick={onOpenTasks}
+            title="Background tasks"
+          >
+            <span className="btn-icon" aria-hidden="true">
+              📋
+            </span>
             <span className="sr-only">Tasks</span>
           </button>
         </div>
       </div>
 
       {/* Bottom Section: sorting + registry-provided secondary actions */}
-      <div className="action-section contextual-actions">
-        <div className="action-group sort-controls">
+      <div className={ui.section}>
+        <div className={ui.group}>
           {/* Primary sort */}
-          <label className="sort-label">
+          <label className="text-xs text-[var(--muted-foreground)]">
             <span className="sr-only">Sort by</span>
             <select
               value={sortBy}
               onChange={(e) => onChangeSortBy(e.target.value as any)}
-              className="sort-select"
+              className={ui.select}
               disabled={loading}
             >
               <option value="name">Name</option>
@@ -451,28 +564,35 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
           </label>
 
           <button
-            className="sort-order-btn"
+            className={ui.iconBtn}
             onClick={onToggleSortOrder}
             title={`Sort ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
             disabled={loading}
             data-testid="toolbar-sort"
           >
-            <span className="btn-icon" aria-hidden="true">{sortOrder === 'asc' ? '↑' : '↓'}</span>
-            <span className="sr-only">{sortOrder === 'asc' ? 'Ascending' : 'Descending'} order</span>
+            <span className="btn-icon" aria-hidden="true">
+              {sortOrder === 'asc' ? '↑' : '↓'}
+            </span>
+            <span className="sr-only">
+              {sortOrder === 'asc' ? 'Ascending' : 'Descending'} order
+            </span>
           </button>
 
           {/* Secondary sort (optional) */}
           {onChangeSortBy2 ? (
             <>
               <span className="sr-only">Then by</span>
-              <label className="sort-label" style={{ marginLeft: 8 }}>
+              <label
+                className="text-xs text-[var(--muted-foreground)]"
+                style={{ marginLeft: 8 }}
+              >
                 <select
                   value={sortBy2 || ''}
                   onChange={(e) => {
                     const v = e.target.value as any
                     onChangeSortBy2(v === '' ? undefined : v)
                   }}
-                  className="sort-select"
+                  className={ui.select}
                   disabled={loading}
                 >
                   <option value="">Then by… (none)</option>
@@ -482,39 +602,45 @@ export default function UnifiedActionBar(props: UnifiedActionBarProps) {
                 </select>
               </label>
               <button
-                className="sort-order-btn"
+                className={ui.iconBtn}
                 onClick={() => onToggleSortOrder2?.()}
-                title={`Secondary sort ${((sortOrder2 || 'asc') === 'asc') ? 'descending' : 'ascending'}`}
+                title={`Secondary sort ${(sortOrder2 || 'asc') === 'asc' ? 'descending' : 'ascending'}`}
                 disabled={loading || !sortBy2}
               >
-                <span className="btn-icon" aria-hidden="true">{(sortOrder2 || 'asc') === 'asc' ? '↑' : '↓'}</span>
-                <span className="sr-only">{(sortOrder2 || 'asc') === 'asc' ? 'Ascending' : 'Descending'} order (secondary)</span>
+                <span className="btn-icon" aria-hidden="true">
+                  {(sortOrder2 || 'asc') === 'asc' ? '↑' : '↓'}
+                </span>
+                <span className="sr-only">
+                  {(sortOrder2 || 'asc') === 'asc' ? 'Ascending' : 'Descending'}{' '}
+                  order (secondary)
+                </span>
               </button>
             </>
           ) : null}
         </div>
 
-        <div className="action-group secondary-buttons">
+        <div className={ui.group}>
           {secondaryActions.map(buildActionButton)}
         </div>
 
-        <div className="action-group status-display">
-          <div className="status-info" aria-live="polite">
+        <div className={ui.group}>
+          <div className={ui.status} aria-live="polite">
             {loading ? (
               <span className="loading">Loading...</span>
             ) : error ? (
-              <span className="error" title={error}>Error: {error}</span>
+              <span className="error" title={error}>
+                Error: {error}
+              </span>
             ) : (
               <span className="file-count">
                 {fileCount} item{fileCount !== 1 ? 's' : ''}
-                {selectionContext.hasSelection && ` (${selectionContext.selectedCount} selected)`}
+                {selectionContext.hasSelection &&
+                  ` (${selectionContext.selectedCount} selected)`}
               </span>
             )}
           </div>
         </div>
       </div>
-
-      <style>{styles}</style>
     </div>
   )
 }
@@ -541,158 +667,4 @@ function getDefaultIcon(actionId: string): string {
   return iconMap[actionId] || '⚡'
 }
 
-// CSS styles for the unified action bar
-const styles = `
-.unified-action-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 12px;
-  margin: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.action-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.action-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.context-indicator .context-badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.context-badge[data-context="selected"] {
-  background: rgba(79, 70, 229, 0.3);
-  border-color: rgba(99, 102, 241, 0.5);
-}
-
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-}
-
-.action-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
-}
-
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.action-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.view-btn, .utility-btn, .secondary-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 32px;
-  height: 32px;
-}
-
-.view-btn.active, .utility-btn.active {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.view-btn:hover:not(:disabled),
-.utility-btn:hover:not(:disabled),
-.secondary-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.bucket-select, .path-input, .search-input, .sort-select {
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  font-size: 13px;
-  backdrop-filter: blur(8px);
-}
-
-.bucket-select:focus,
-.path-input:focus,
-.search-input:focus,
-.sort-select:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-}
-
-.selector-label, .sort-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.status-info {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.status-info .error {
-  color: #f87171;
-}
-
-.status-info .loading {
-  color: #93c5fd;
-}
-
-/* Mobile responsive design */
-@media (max-width: 768px) {
-  .unified-action-bar {
-    padding: 10px;
-    border-radius: 10px;
-  }
-  .action-section {
-    gap: 8px;
-  }
-  .path-input, .search-input {
-    min-width: 160px;
-    width: 100%;
-  }
-}
-`
+// Tailwind-only refactor: removed local styles in favor of tokenized utilities

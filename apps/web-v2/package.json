@@ -4,31 +4,45 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3001",
-    "build": "next build",
-    "start": "next start -p 3001",
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev -p 3001",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start -p 3001",
     "lint": "next lint",
+    "test": "vitest run",
+    "test:ui": "vitest",
     "postinstall": "node -e \"console.log('web-v2 postinstall complete')\""
   },
   "dependencies": {
-    "next": "14.2.5",
+    "clsx": "^2.1.1",
+    "next": "^15.0.0",
     "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "clsx": "^2.1.1"
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^16.0.0",
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.0.0",
+    "jsdom": "^24.1.0",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.5"
+    "vitest": "^1.6.0"
+  },
+  "vitest": {
+    "environment": "jsdom",
+    "globals": true,
+    "setupFiles": [
+      "./vitest.setup.ts"
+    ]
   },
   "engines": {
-    "node": ">=18.17.0",
+    "node": ">=18.18.0",
     "npm": ">=9.0.0"
   }
 }
