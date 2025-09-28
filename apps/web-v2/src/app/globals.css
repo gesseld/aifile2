@@ -1,0 +1,122 @@
+/* Design tokens and modes baseline (trimmed to essentials used so far) */
+
+/* Light (default) */
+:root {
+  /* Surfaces & borders */
+  --app-bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb; /* gray-200 */
+
+  /* Text */
+  --foreground: #0f172a; /* slate-900 */
+  --muted-foreground: #64748b; /* slate-500 */
+
+  /* Accents & rings */
+  --accent: #f1f5f9; /* slate-100 */
+  --ring: #60a5fa; /* blue-400 */
+
+  /* Primary (upload etc.) */
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+
+  color-scheme: light;
+}
+
+/* Dark */
+:root[data-theme="dark"] {
+  --app-bg: #0b0f1a; /* near slate-950 but slightly bluer */
+  --surface: #0f172a; /* slate-900 */
+  --border: #1f2937; /* slate-800 */
+  --foreground: #e5e7eb; /* gray-200 */
+  --muted-foreground: #94a3b8; /* slate-400 */
+  --accent: #111827; /* gray-900 */
+  --ring: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+
+  color-scheme: dark;
+}
+
+/* High contrast mode (opt-in) */
+:root[data-high-contrast="1"] {
+  --border: #334155; /* slate-700 */
+  --muted-foreground: #475569; /* slate-600 */
+  --ring: #22d3ee; /* cyan-400 */
+}
+
+/* Density (compact) tweaks */
+:root[data-density="compact"] {
+  --density-scale: 0.92;
+}
+:root {
+  --density-scale: 1;
+}
+html, body, button, input, select, textarea {
+  font-size: calc(16px * var(--density-scale));
+}
+
+/* Text zoom (accessibility) */
+:root[data-text-zoom="lg"] {
+  font-size: 18px;
+}
+:root[data-text-zoom="xl"] {
+  font-size: 20px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:root[data-reduce-motion="1"] * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Base resets aligned to tokens */
+html, body {
+  height: 100%;
+  background: var(--app-bg);
+  color: var(--foreground);
+}
+* {
+  box-sizing: border-box;
+}
+
+/* Utility-ish helpers (non-TW) for shadows matching soft cards */
+.shadow-soft {
+  box-shadow:
+    0 1px 1px rgba(0,0,0,0.03),
+    0 2px 4px rgba(0,0,0,0.04);
+}
+
+/* Focus visibility baseline */
+:where(button, [role="button"], a, input, select, textarea) {
+  outline: none;
+}
+:where(button, [role="button"], a, input, select, textarea):focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* Scrollbar tokenized */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

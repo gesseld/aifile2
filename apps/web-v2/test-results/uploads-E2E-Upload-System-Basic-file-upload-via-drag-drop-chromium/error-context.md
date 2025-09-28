@@ -1,0 +1,174 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8] [cursor=pointer]
+  - navigation [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - link "AI File Manager" [ref=e14] [cursor=pointer]:
+          - /url: /
+        - link "Plans" [ref=e15] [cursor=pointer]:
+          - /url: /plans
+        - link "Files" [ref=e16] [cursor=pointer]:
+          - /url: /files
+        - link "Dashboard" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+      - generic [ref=e18]:
+        - link "Profile" [ref=e19] [cursor=pointer]:
+          - /url: /profile
+        - link "Admin" [ref=e20] [cursor=pointer]:
+          - /url: /admin
+        - link "Logout" [ref=e21] [cursor=pointer]:
+          - /url: /logout
+  - generic [ref=e23]:
+    - generic [ref=e24]: Selection cleared
+    - banner [ref=e25]:
+      - generic [ref=e26]:
+        - generic "Cloud Storage" [ref=e27]:
+          - generic [ref=e28]: ☁️
+          - generic [ref=e29]: CloudStorage
+        - navigation "Breadcrumb" [ref=e30]:
+          - link "Home" [ref=e31] [cursor=pointer]:
+            - /url: /files
+          - generic [ref=e32]: →
+          - link "Files" [ref=e33] [cursor=pointer]:
+            - /url: /files
+          - generic [ref=e34]: →
+          - generic [ref=e35]: (no bucket)
+      - generic [ref=e36]:
+        - button "➕ New Bucket" [ref=e37] [cursor=pointer]
+        - button "⚙️ Settings" [ref=e38] [cursor=pointer]
+        - button "📋 Tasks" [ref=e39] [cursor=pointer]
+        - button "⬆️ Uploads" [ref=e40] [cursor=pointer]
+        - button "📁 New Folder" [disabled] [ref=e41]
+        - button "📤 Upload" [disabled] [ref=e42]
+        - button "🔗 Copy Path" [disabled] [ref=e43]
+        - button "Folders Off" [ref=e44] [cursor=pointer]
+        - button "❔ Help" [ref=e45] [cursor=pointer]
+        - group "Theme and density" [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: Theme
+            - generic [ref=e49]:
+              - button "☀︎" [ref=e50] [cursor=pointer]
+              - button "☾" [ref=e51] [cursor=pointer]
+              - button "◐" [pressed] [ref=e52] [cursor=pointer]
+          - generic [ref=e53]:
+            - generic [ref=e54]: Density
+            - generic [ref=e55]:
+              - button "Comfort" [pressed] [ref=e56] [cursor=pointer]
+              - button "Compact" [ref=e57] [cursor=pointer]
+          - generic [ref=e58]: "Active: light · comfortable"
+        - button "User menu" [ref=e59] [cursor=pointer]: SJ
+        - button "⟶ Hide" [expanded] [ref=e60] [cursor=pointer]
+        - button "Hide ⟶" [expanded] [ref=e61] [cursor=pointer]
+    - toolbar "File actions and filters" [ref=e62]:
+      - toolbar "File actions" [ref=e63]:
+        - generic [ref=e64]:
+          - generic [ref=e67]: Browse
+          - generic [ref=e68]:
+            - button "Upload" [disabled] [ref=e69]:
+              - generic [ref=e70]: 📤
+              - generic [ref=e71]: Upload
+            - button "New Folder" [disabled] [ref=e72]:
+              - generic [ref=e73]: 📁
+              - generic [ref=e74]: New Folder
+          - generic [ref=e75]:
+            - button "Grid view" [pressed] [ref=e76] [cursor=pointer]:
+              - generic [ref=e77] [cursor=pointer]: 🟦
+              - generic [ref=e78] [cursor=pointer]: Grid view
+            - button "List view" [ref=e79] [cursor=pointer]:
+              - generic [ref=e80] [cursor=pointer]: 📋
+              - generic [ref=e81] [cursor=pointer]: List view
+            - button "Details view" [ref=e82] [cursor=pointer]:
+              - generic [ref=e83] [cursor=pointer]: 📊
+              - generic [ref=e84] [cursor=pointer]: Details view
+        - generic [ref=e85]:
+          - generic [ref=e87]:
+            - generic [ref=e88]: Bucket
+            - combobox "Bucket" [ref=e89]:
+              - option "Select bucket" [selected]
+          - textbox "Path prefix" [disabled] [ref=e91]
+          - searchbox "Search files..." [ref=e93]
+          - generic [ref=e94]:
+            - button "Folder grouping off" [ref=e95] [cursor=pointer]:
+              - generic [ref=e96] [cursor=pointer]: 📁 Off
+              - generic [ref=e97] [cursor=pointer]: Folder grouping off
+            - button "Refresh" [disabled] [ref=e98]:
+              - generic [ref=e99]: 🔄
+              - generic [ref=e100]: Refresh
+            - button "Load more" [disabled] [ref=e101]:
+              - generic [ref=e102]: ⏬
+              - generic [ref=e103]: Load more
+            - button "Admin" [disabled] [ref=e104]:
+              - generic [ref=e105]: 🛠️
+              - generic [ref=e106]: Admin
+            - button "Tasks" [ref=e107] [cursor=pointer]:
+              - generic [ref=e108] [cursor=pointer]: 📋
+              - generic [ref=e109] [cursor=pointer]: Tasks
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: Sort by
+              - combobox "Sort by" [ref=e114]:
+                - option "Name" [selected]
+                - option "Size"
+                - option "Updated"
+            - button "Ascending order" [ref=e115] [cursor=pointer]:
+              - generic [ref=e116] [cursor=pointer]: ↑
+              - generic [ref=e117] [cursor=pointer]: Ascending order
+          - generic [ref=e120]: 0 items
+    - region "Filters" [ref=e121]:
+      - button "Show Filters" [ref=e122] [cursor=pointer]
+    - region "File manager panels" [ref=e123]:
+      - complementary "Buckets and prefixes" [ref=e124]:
+        - generic [ref=e125]:
+          - generic [ref=e126]: "Buckets filtered: 0 results"
+          - generic [ref=e127]:
+            - generic [ref=e128]:
+              - generic [ref=e129]: Favorites
+              - button "★ Pin current" [disabled] [ref=e130]
+            - generic [ref=e131]: No favorites yet
+          - generic [ref=e132]:
+            - generic [ref=e133]: Buckets
+            - textbox "Filter buckets…" [ref=e134]
+          - listbox "Buckets" [ref=e135]
+          - generic [ref=e136]:
+            - generic [ref=e137]: Prefix
+            - textbox "Drop here to move/copy into current prefix" [ref=e138]
+        - generic [ref=e139]: "Status: Phase 6 Active"
+      - separator "Drag or use Arrow keys (Ctrl/Alt for larger step) to resize left panel" [ref=e140]
+      - region "Objects" [ref=e141]:
+        - region "Current folder header" [ref=e142]:
+          - generic [ref=e143]:
+            - generic "Breadcrumb" [ref=e145]:
+              - button "Files" [ref=e146] [cursor=pointer]
+              - generic [ref=e147]: /
+            - button "Flat" [ref=e149] [cursor=pointer]
+        - generic [ref=e152]: Select or create a bucket to begin.
+      - separator "Drag or use Arrow keys (Ctrl/Alt for larger step) to resize right panel" [ref=e153]
+      - complementary "Details" [ref=e154]:
+        - generic "Details, preview, uploads and bulk operations" [ref=e155]:
+          - generic [ref=e156]:
+            - heading "Details" [active] [level=2] [ref=e157]
+            - generic [ref=e158]:
+              - button "Preview" [disabled] [ref=e159]
+              - button "Details" [pressed] [ref=e160] [cursor=pointer]
+              - button "Uploads" [ref=e161] [cursor=pointer]
+          - generic [ref=e163]:
+            - generic [ref=e164]: Details
+            - generic [ref=e165]: Select a file to see its details
+    - status [ref=e166]:
+      - generic [ref=e167]:
+        - generic [ref=e168]: 0 items
+        - generic [ref=e169]: "|"
+        - generic [ref=e170]: 0 selected
+      - generic [ref=e172]: Idle
+      - generic [ref=e175]: Online
+  - generic [ref=e176]:
+    - img [ref=e178]
+    - button "Open Tanstack query devtools" [ref=e226] [cursor=pointer]:
+      - img [ref=e227] [cursor=pointer]
+  - alert [ref=e275]
+```

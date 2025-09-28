@@ -1,0 +1,10 @@
+{
+  "/not-found": "app/not-found.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/files/page": "app/files/page.js",
+  "/login/page": "app/login/page.js",
+  "/api/files/[[...slug]]/route": "app/api/files/[[...slug]]/route.js",
+  "/search/page": "app/search/page.js",
+  "/upload/page": "app/upload/page.js",
+  "/bulk-operations/page": "app/bulk-operations/page.js"
+}

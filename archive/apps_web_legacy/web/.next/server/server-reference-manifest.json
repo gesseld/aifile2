@@ -1,0 +1,38 @@
+{
+  "node": {
+    "54354bf00cf9b544785ea2db439cc605c1674556": {
+      "workers": {
+        "app/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Froot%2Fdev%2Faifile2%2Fapps%2Fweb%2Fapp%2Factions%2Fpublic-stats.ts%22%2C%5B%22getPublicStats%22%2C%22revalidatePublicStats%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/page": "rsc"
+      }
+    },
+    "e7297e3a285d5509c8ea6fa39f11e3a29a3af719": {
+      "workers": {
+        "app/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Froot%2Fdev%2Faifile2%2Fapps%2Fweb%2Fapp%2Factions%2Fpublic-stats.ts%22%2C%5B%22getPublicStats%22%2C%22revalidatePublicStats%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/page": "rsc"
+      }
+    },
+    "a4ec11287f5605cade1d488f6cb5bfcc45571e50": {
+      "workers": {
+        "app/login/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Froot%2Fdev%2Faifile2%2Fapps%2Fweb%2Fapp%2Flogin%2Factions.ts%22%2C%5B%22login%22%2C%22logout%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/login/page": "action-browser"
+      }
+    },
+    "c697af71d9228b432e9a850cbf152b9cd36287b2": {
+      "workers": {
+        "app/login/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Froot%2Fdev%2Faifile2%2Fapps%2Fweb%2Fapp%2Flogin%2Factions.ts%22%2C%5B%22login%22%2C%22logout%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/login/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "6xnCzCdjug32QpoILn+xmczeTssU+5KcSXTSozoOe7Y="
+}

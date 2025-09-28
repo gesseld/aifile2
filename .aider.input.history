@@ -1,0 +1,165 @@
+
+# 2025-08-18 15:41:56.130379
++Add a simple comment to this file to test API connectivity
+
+# 2025-08-18 15:41:56.130504
++Add a simple comment to this file to test API connectivity
+
+# 2025-08-18 15:42:32.751562
++Add a simple comment: '# API test successful' at the top of the file
+
+# 2025-08-18 15:42:32.752769
++Add a simple comment: '# API test successful' at the top of the file
+
+# 2025-08-18 15:46:30.452360
++Add a comment: '# Tested with kimi-k2-0711-preview model successfully'
+
+# 2025-08-18 15:46:30.452968
++Add a comment: '# Tested with kimi-k2-0711-preview model successfully'
+
+# 2025-08-18 15:50:00.944262
++Add a comment: '# Claude API test successful'
+
+# 2025-08-18 15:50:00.944480
++Add a comment: '# Claude API test successful'
+
+# 2025-08-18 15:55:24.948620
++Add a comment: '# Claude Sonnet 3.7 test successful'
+
+# 2025-08-18 15:55:24.948694
++Add a comment: '# Claude Sonnet 3.7 test successful'
+
+# 2025-08-18 15:55:56.676821
++Add another comment: '# Claude Opus test successful'
+
+# 2025-08-18 15:55:56.677560
++Add another comment: '# Claude Opus test successful'
+
+# 2025-08-18 15:58:50.948980
++Test Sonnet 4
+
+# 2025-08-18 15:58:50.949073
++Test Sonnet 4
+
+# 2025-08-18 15:59:34.040602
++Test Claude 4 Sonnet
+
+# 2025-08-18 15:59:34.040805
++Test Claude 4 Sonnet
+
+# 2025-08-18 16:00:12.439964
++Test Claude 4 Opus
+
+# 2025-08-18 16:00:12.440395
++Test Claude 4 Opus
+
+# 2025-08-18 16:15:45.328521
++Add a comment: '# Qwen API test successful'
+
+# 2025-08-18 16:15:45.328615
++Add a comment: '# Qwen API test successful'
+
+# 2025-08-18 16:16:23.632582
++Test Qwen API
+
+# 2025-08-18 16:16:23.632690
++Test Qwen API
+
+# 2025-08-18 16:16:42.432338
++Test Qwen API with OpenAI format
+
+# 2025-08-18 16:16:42.432425
++Test Qwen API with OpenAI format
+
+# 2025-08-18 16:17:12.555041
++Test Qwen API with DashScope
+
+# 2025-08-18 16:17:12.555127
++Test Qwen API with DashScope
+
+# 2025-08-18 16:17:34.395544
++Test Qwen Plus model
+
+# 2025-08-18 16:17:34.395650
++Test Qwen Plus model
+
+# 2025-08-18 16:30:17.868967
++Add a comment: '# Llama 3.2 test successful'
+
+# 2025-08-18 16:30:17.869519
++Add a comment: '# Llama 3.2 test successful'
+
+# 2025-08-18 16:35:52.162203
++Add a comment: '# Qwen 2.5 Coder test successful'
+
+# 2025-08-18 16:35:52.162311
++Add a comment: '# Qwen 2.5 Coder test successful'
+
+# 2025-08-18 16:59:09.410066
++Test Qwen3 Coder Instruct model
+
+# 2025-08-18 16:59:09.410134
++Test Qwen3 Coder Instruct model
+
+# 2025-08-18 17:02:21.539398
++Test Qwen 2.5 Coder Instruct model
+
+# 2025-08-18 17:02:21.539475
++Test Qwen 2.5 Coder Instruct model
+
+# 2025-08-18 17:04:15.476692
++Test Qwen 2.5 Coder 7B Instruct model
+
+# 2025-08-18 17:04:15.476762
++Test Qwen 2.5 Coder 7B Instruct model
+
+# 2025-08-18 17:06:06.002668
++Test Qwen 2.5 Coder 32B Instruct model with full API access
+
+# 2025-08-18 17:06:06.002769
++Test Qwen 2.5 Coder 32B Instruct model with full API access
+
+# 2025-08-18 17:06:26.406697
++Test Qwen 2.5 Coder 7B Instruct v1 model
+
+# 2025-08-18 17:06:26.406754
++Test Qwen 2.5 Coder 7B Instruct v1 model
+
+# 2025-08-18 17:06:45.288334
++Test Qwen Coder Plus model
+
+# 2025-08-18 17:06:45.288448
++Test Qwen Coder Plus model
+
+# 2025-08-20 11:17:14.373074
++/add services/secret_manager/tests/test_secrets.py services/redis_cache/package.json services/file_service/package.json package.json frontend/package.json packages/ui/package.json
+
+# 2025-08-20 11:17:45.819321
++y
+
+# 2025-08-20 11:18:06.502629
++/drop frontend/package.json
+
+# 2025-08-20 11:18:12.092557
++/drop packages/ui/package.json
+
+# 2025-08-25 21:03:13.755706
++yes
+
+# 2025-08-25 21:04:14.736863
++Yes 
+
+# 2025-08-25 21:04:21.220984
++no
+
+# 2025-08-25 21:05:32.429752
++Y
+
+# 2025-08-25 21:06:01.434630
++how many model you have access to
+
+# 2025-08-25 21:06:39.744196
++have you read the code in this folder
+
+# 2025-08-25 21:06:56.106265
++help

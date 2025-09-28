@@ -1,1 +1,1 @@
-export * from './cache-client';
+export * from './cache-client'
